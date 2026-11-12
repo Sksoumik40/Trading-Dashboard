@@ -92,6 +92,9 @@ th{color:var(--muted);font-weight:700;font-size:10px;text-transform:uppercase;le
 
 
 
+
+
+
  <!-- DASHBOARD -->
 <div class="page active" id="p-dash">
   <div class="grid">
@@ -125,6 +128,8 @@ th{color:var(--muted);font-weight:700;font-size:10px;text-transform:uppercase;le
       <div><label class="f">Stage</label><select id="aStage"><option value="eval">Evaluation</option><option value="funded">Funded</option><option value="live">Live</option><option value="failed">Failed / Blown</option></select></div>
       <div><label class="f">Nickname or ID</label><input id="aName" placeholder="e.g. LT-50K-03"></div>
       <div><label class="f">Start date</label><input type="date" id="aDate"></div>
+      <div><label class="f">What you paid for it</label><select id="aCostKind"><option value="buy">Eval purchase</option><option value="activation">Activation fee</option><option value="sub">Monthly subscription</option><option value="">Nothing / already logged</option></select></div>
+      <div><label class="f">Cost ($)</label><input type="number" step="0.01" id="aCost" placeholder="e.g. 149.00"></div>
       <button class="btn" type="submit">Add Account</button>
     </form>
   </div>
@@ -140,17 +145,18 @@ th{color:var(--muted);font-weight:700;font-size:10px;text-transform:uppercase;le
     <div class="card"><div class="label">Activation + Subs + Data</div><div class="value neg" id="mOther">$0</div></div>
   </div>
   <div class="card" style="margin-bottom:16px">
-    <h2>Add Purchase</h2>
+    <h2>Add Extra Cost (reset, activation, subscription, data)</h2>
+    <p class="muted" style="margin:0 0 10px">Your first purchase is entered on the Accounts tab when you add the account. Use this form for any cost after that. Pick the account and the firm, type and size fill in on their own.</p>
     <form class="fgrid" id="fMoney">
-      <div><label class="f">Kind</label><select id="mKind"><option value="buy">Eval purchase</option><option value="reset">Reset</option><option value="activation">Activation fee</option><option value="sub">Monthly subscription</option><option value="data">Data / platform fee</option></select></div>
+      <div><label class="f">Kind</label><select id="mKind"><option value="reset">Reset</option><option value="activation">Activation fee</option><option value="sub">Monthly subscription</option><option value="data">Data / platform fee</option><option value="buy">Eval purchase</option></select></div>
+      <div><label class="f">Account (fills in the rest)</label><select id="mAcct"><option value="">None</option></select></div>
       <div><label class="f">Firm</label><select id="mFirm"></select></div>
       <div><label class="f">Account type</label><select id="mType"></select></div>
       <div><label class="f">Size</label><select id="mSize"></select></div>
-      <div><label class="f">Linked account (optional)</label><select id="mAcct"><option value="">None</option></select></div>
       <div><label class="f">Amount ($)</label><input type="number" step="0.01" id="mAmt" required></div>
       <div><label class="f">Date</label><input type="date" id="mDate"></div>
       <div><label class="f">Note</label><input id="mNote" placeholder="promo code, which account..."></div>
-      <button class="btn" type="submit">Add Purchase</button>
+      <button class="btn" type="submit">Add Cost</button>
     </form>
   </div>
   <div class="row2">
@@ -305,6 +311,13 @@ th{color:var(--muted);font-weight:700;font-size:10px;text-transform:uppercase;le
 
 
 
+
+
+
+
+
+
+
  <script>
 const FIRMS={
  'Lucid Trading':{types:['LucidFlex','LucidPro','LucidDaily','LucidDirect'],sizes:['25K','50K','100K','150K']},
@@ -368,7 +381,33 @@ $('moods').innerHTML=MOODS.map(m=>`<button type="button" class="mood" data-m="${
 document.querySelectorAll('.mood').forEach(b=>b.onclick=()=>{selMood=b.dataset.m;document.querySelectorAll('.mood').forEach(x=>x.classList.toggle('on',x===b))});
 
 /* forms */
-$('fAcct').onsubmit=e=>{e.preventDefault();accts.push({id:Date.now(),firm:$('aFirm').value,type:$('aType').value,size:$('aSize').value,stage:$('aStage').value,name:$('aName').value||'Unnamed',date:$('aDate').value});$('aName').value='';saveAll()};
+$('fAcct').onsubmit=e=>{
+ e.preventDefault();
+ const id=Date.now();
+ accts.push({id,firm:$('aFirm').value,type:$('aType').value,size:$('aSize').value,stage:$('aStage').value,name:$('aName').value||'Unnamed',date:$('aDate').value});
+ const cost=parseFloat($('aCost').value),kind=$('aCostKind').value;
+ if(cost>0&&kind){money.push({id:id+1,kind,firm:$('aFirm').value,type:$('aType').value,size:$('aSize').value,acct:String(id),amt:cost,date:$('aDate').value,note:'Added with account'})}
+ $('aName').value='';$('aCost').value='';
+ saveAll();
+};
+/* picking an account on the extra cost form fills firm, type and size */
+$('mAcct').addEventListener('change',()=>{
+ const a=acctById($('mAcct').value);
+ if(!a)return;
+ $('mFirm').value=a.firm;fillTypes($('mFirm'),$('mType'));fillSizes($('mFirm'),$('mSize'));
+ $('mType').value=a.type;$('mSize').value=a.size;
+});
+$('pAcct').addEventListener('change',()=>{
+ const a=acctById($('pAcct').value);
+ if(!a)return;
+ $('pFirm').value=a.firm;fillTypes($('pFirm'),$('pType'));fillSizes($('pFirm'),$('pSize'));
+ $('pType').value=a.type;$('pSize').value=a.size;
+});
+$('jAcct').addEventListener('change',()=>{
+ const a=acctById($('jAcct').value);
+ if(!a)return;
+ $('jFirm').value=a.firm;fillSizes($('jFirm'),$('jSize'));$('jSize').value=a.size;
+});
 $('fMoney').onsubmit=e=>{e.preventDefault();money.push({id:Date.now(),kind:$('mKind').value,firm:$('mFirm').value,type:$('mType').value,size:$('mSize').value,acct:$('mAcct').value,amt:Math.abs(parseFloat($('mAmt').value)),date:$('mDate').value,note:$('mNote').value});$('mAmt').value='';$('mNote').value='';saveAll()};
 $('fPay').onsubmit=e=>{e.preventDefault();payouts.push({id:Date.now(),firm:$('pFirm').value,type:$('pType').value,size:$('pSize').value,acct:$('pAcct').value,amt:Math.abs(parseFloat($('pAmt').value)),date:$('pDate').value,note:$('pNote').value});$('pAmt').value='';$('pNote').value='';saveAll()};
 $('fJ').onsubmit=e=>{e.preventDefault();journal.push({id:Date.now(),date:$('jDate').value,firm:$('jFirm').value,size:$('jSize').value,acct:$('jAcct').value,pnl:parseFloat($('jPnl').value),trades:$('jTrades').value,rules:$('jRules').value,disc:parseFloat($('jDisc').value)||0,mood:selMood,notes:$('jNotes').value});$('jPnl').value='';$('jTrades').value='';$('jDisc').value='';$('jNotes').value='';saveAll()};
@@ -404,6 +443,14 @@ function fillAcctSelects(){
   $(id).value=cur;
  });
 }
+
+
+
+
+
+
+
+
 
 
 
@@ -659,8 +706,3 @@ render();
 </script>
 </body>
 </html>
-
-
-
-
-

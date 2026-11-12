@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Prop Desk">
+<title>Prop Desk</title>
+<style>
+:root{--bg:#0d1020;--panel:#161a30;--panel2:#1d2240;--line:#2a3058;--text:#eef0ff;--muted:#8d93bd;--green:#3ddc97;--red:#ff6b81;--gold:#ffc857;--accent:#8b7cff;--accent2:#5ec8ff}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:radial-gradient(1200px 600px at 10% -10%,#1b2050 0%,var(--bg) 60%);color:var(--text);min-height:100vh;padding-bottom:90px}
+.wrap{max-width:1100px;margin:0 auto;padding:18px 14px}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+h1{font-size:22px;margin:0;letter-spacing:.3px}
+.sub{color:var(--muted);font-size:13px}
+.tabs{display:flex;gap:6px;background:var(--panel);padding:5px;border-radius:14px;margin-bottom:16px;overflow-x:auto}
+.tab{flex:1;min-width:92px;text-align:center;padding:10px 12px;border-radius:10px;border:none;background:transparent;color:var(--muted);font-weight:600;font-size:14px;cursor:pointer;white-space:nowrap}
+.tab.active{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#0d1020}
+.page{display:none}.page.active{display:block}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:16px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px}
+.card h2{font-size:15px;margin:0 0 12px;color:var(--text)}
+.label{color:var(--muted);font-size:12px;margin-bottom:6px;text-transform:uppercase;letter-spacing:.6px}
+.value{font-size:24px;font-weight:800}
+.pos{color:var(--green)}.neg{color:var(--red)}.gold{color:var(--gold)}
+.row2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;margin-bottom:16px}
+form.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+label.f{display:block;font-size:11px;color:var(--muted);margin-bottom:4px}
+input,select,textarea{width:100%;padding:11px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);color:var(--text);font-size:14px;font-family:inherit}
+textarea{min-height:80px;grid-column:1/-1}
+.full{grid-column:1/-1}
+button.btn{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#0d1020;border:none;padding:13px;border-radius:12px;font-weight:700;font-size:14px;cursor:pointer;grid-column:1/-1}
+button.ghost{background:var(--panel2);color:var(--text);border:1px solid var(--line);padding:8px 12px;border-radius:10px;cursor:pointer;font-size:12px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.5px}
+.tag{display:inline-block;padding:3px 9px;border-radius:99px;font-size:11px;font-weight:700;background:var(--panel2);border:1px solid var(--line)}
+.tag.eval{color:var(--gold)}.tag.funded{color:var(--green)}.tag.live{color:var(--accent2)}.tag.failed{color:var(--red)}
+.x{background:none;border:none;color:var(--red);font-size:16px;cursor:pointer}
+.scroll{overflow-x:auto}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.cal .d{aspect-ratio:1;border-radius:10px;background:var(--panel2);font-size:11px;padding:5px;color:var(--muted);display:flex;flex-direction:column;justify-content:space-between}
+.cal .d b{font-size:11px}
+.cal .d.win{background:rgba(61,220,151,.22);color:var(--text)}
+.cal .d.loss{background:rgba(255,107,129,.22);color:var(--text)}
+.cal .h{text-align:center;color:var(--muted);font-size:11px;padding:4px}
+.bar{height:10px;border-radius:99px;background:var(--panel2);overflow:hidden}
+.bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+.muted{color:var(--muted);font-size:12px}
+.mood{font-size:22px;cursor:pointer;opacity:.45;background:none;border:none}
+.mood.on{opacity:1;transform:scale(1.15)}
+@media(max-width:600px){.value{font-size:20px}h1{font-size:19px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div><h1>Prop Desk</h1><div class="sub" id="today"></div></div>
+  <button class="ghost" onclick="exportData()">Backup</button>
+</header>
+
+<div class="tabs">
+  <button class="tab active" data-p="dash">Dashboard</button>
+  <button class="tab" data-p="accts">Accounts</button>
+  <button class="tab" data-p="money">Money</button>
+  <button class="tab" data-p="journal">Journal</button>
+  <button class="tab" data-p="stats">Stats</button>
+</div>
+
+
+
+
+  <!-- DASHBOARD -->
+<div class="page active" id="p-dash">
+  <div class="grid">
+    <div class="card"><div class="label">Today's P&L</div><div class="value" id="kToday">$0</div></div>
+    <div class="card"><div class="label">This Week</div><div class="value" id="kWeek">$0</div></div>
+    <div class="card"><div class="label">This Month</div><div class="value" id="kMonth">$0</div></div>
+    <div class="card"><div class="label">Total Payouts</div><div class="value pos" id="kPayouts">$0</div></div>
+    <div class="card"><div class="label">Total Spent</div><div class="value neg" id="kSpent">$0</div></div>
+    <div class="card"><div class="label">True Net Profit</div><div class="value" id="kNet">$0</div></div>
+  </div>
+  <div class="grid">
+    <div class="card"><div class="label">Eval Accounts</div><div class="value gold" id="kEval">0</div></div>
+    <div class="card"><div class="label">Funded Accounts</div><div class="value pos" id="kFunded">0</div></div>
+    <div class="card"><div class="label">Live Accounts</div><div class="value" id="kLive" style="color:var(--accent2)">0</div></div>
+    <div class="card"><div class="label">Failed / Blown</div><div class="value neg" id="kFailed">0</div></div>
+  </div>
+  <div class="row2">
+    <div class="card"><h2>Accounts by Firm</h2><div class="scroll"><table id="tFirmAccts"></table></div></div>
+    <div class="card"><h2>Profit Calendar</h2><div class="row" style="display:flex;gap:8px;margin-bottom:10px"><button class="ghost" onclick="calMove(-1)">Prev</button><b id="calTitle" style="flex:1;text-align:center"></b><button class="ghost" onclick="calMove(1)">Next</button></div><div class="cal" id="cal"></div></div>
+  </div>
+</div>
+
+<!-- ACCOUNTS -->
+<div class="page" id="p-accts">
+  <div class="card" style="margin-bottom:16px">
+    <h2>Add Account</h2>
+    <form class="fgrid" id="fAcct">
+      <div><label class="f">Firm</label><select id="aFirm"></select></div>
+      <div><label class="f">Account type</label><select id="aType"></select></div>
+      <div><label class="f">Size</label><select id="aSize"></select></div>
+      <div><label class="f">Stage</label><select id="aStage"><option value="eval">Evaluation</option><option value="funded">Funded</option><option value="live">Live</option><option value="failed">Failed / Blown</option></select></div>
+      <div><label class="f">Nickname or ID</label><input id="aName" placeholder="e.g. LT-50K-03"></div>
+      <div><label class="f">Start date</label><input type="date" id="aDate"></div>
+      <button class="btn" type="submit">Add Account</button>
+    </form>
+  </div>
+  <div class="card"><h2>All Accounts</h2><div class="scroll"><table id="tAccts"></table></div></div>
+</div>
+
+<!-- MONEY -->
+<div class="page" id="p-money">
+  <div class="grid">
+    <div class="card"><div class="label">Bought (Evals + Resets)</div><div class="value neg" id="mBought">$0</div></div>
+    <div class="card"><div class="label">Withdrawn</div><div class="value pos" id="mOut">$0</div></div>
+    <div class="card"><div class="label">Net After Costs</div><div class="value" id="mNet">$0</div></div>
+    <div class="card"><div class="label">Return on Spend</div><div class="value gold" id="mRoi">0%</div></div>
+  </div>
+  <div class="card" style="margin-bottom:16px">
+    <h2>Add Purchase or Payout</h2>
+    <form class="fgrid" id="fMoney">
+      <div><label class="f">Kind</label><select id="mKind"><option value="buy">Eval purchase</option><option value="reset">Reset</option><option value="activation">Activation fee</option><option value="sub">Monthly subscription</option><option value="data">Data / platform fee</option><option value="payout">Payout withdrawn</option></select></div>
+      <div><label class="f">Firm</label><select id="mFirm"></select></div>
+      <div><label class="f">Account type</label><select id="mType"></select></div>
+      <div><label class="f">Amount ($)</label><input type="number" step="0.01" id="mAmt" required></div>
+      <div><label class="f">Date</label><input type="date" id="mDate"></div>
+      <div><label class="f">Note</label><input id="mNote" placeholder="promo code, which account..."></div>
+      <button class="btn" type="submit">Add</button>
+    </form>
+  </div>
+  <div class="row2">
+    <div class="card"><h2>Spent vs Withdrawn by Firm</h2><div class="scroll"><table id="tMoneyFirm"></table></div></div>
+    <div class="card"><h2>History</h2><div class="scroll"><table id="tMoney"></table></div></div>
+  </div>
+</div>
+
+<!-- JOURNAL -->
+<div class="page" id="p-journal">
+  <div class="card" style="margin-bottom:16px">
+    <h2>Log a Trading Day</h2>
+    <form class="fgrid" id="fJ">
+      <div><label class="f">Date</label><input type="date" id="jDate"></div>
+      <div><label class="f">Firm</label><select id="jFirm"></select></div>
+      <div><label class="f">P&L today ($)</label><input type="number" step="0.01" id="jPnl" required></div>
+      <div><label class="f">Trades taken</label><input type="number" id="jTrades"></div>
+      <div><label class="f">Rules</label><select id="jRules"><option>Followed plan</option><option>Broke rules</option></select></div>
+      <div><label class="f">Discipline (1 to 10)</label><input type="number" min="1" max="10" id="jDisc"></div>
+      <div class="full"><label class="f">Mood</label><div id="moods"></div></div>
+      <textarea id="jNotes" placeholder="What went well? What went wrong? Lesson for tomorrow?"></textarea>
+      <button class="btn" type="submit">Save Day</button>
+    </form>
+  </div>
+  <div class="card"><h2>Journal History</h2><div class="scroll"><table id="tJ"></table></div></div>
+</div>
+
+<!-- STATS -->
+<div class="page" id="p-stats">
+  <div class="grid">
+    <div class="card"><div class="label">Green Day Rate</div><div class="value pos" id="sWin">0%</div></div>
+    <div class="card"><div class="label">Avg Green Day</div><div class="value pos" id="sAvgW">$0</div></div>
+    <div class="card"><div class="label">Avg Red Day</div><div class="value neg" id="sAvgL">$0</div></div>
+    <div class="card"><div class="label">Profit Factor</div><div class="value gold" id="sPf">0</div></div>
+    <div class="card"><div class="label">Best Day</div><div class="value pos" id="sBest">$0</div></div>
+    <div class="card"><div class="label">Worst Day</div><div class="value neg" id="sWorst">$0</div></div>
+    <div class="card"><div class="label">Rule Follow Rate</div><div class="value" id="sRules">0%</div></div>
+    <div class="card"><div class="label">Avg Discipline</div><div class="value" id="sDisc">0</div></div>
+  </div>
+  <div class="row2">
+    <div class="card"><h2>P&L by Firm</h2><div class="scroll"><table id="tPnlFirm"></table></div></div>
+    <div class="card"><h2>P&L by Mood</h2><div class="scroll"><table id="tPnlMood"></table></div></div>
+  </div>
+  <div class="card"><h2>Pass Rate by Firm</h2><div class="scroll"><table id="tPass"></table></div></div>
+</div>
+</div>
+
+
+
+
+
+  <script>
+const FIRMS={
+ 'Lucid Trading':{types:['LucidFlex','LucidPro','LucidDaily','LucidDirect'],sizes:['25K','50K','100K','150K']},
+ 'Topstep':{types:['Trading Combine','Express Funded','Live Funded'],sizes:['50K','100K','150K']},
+ 'Tradeify':{types:['Growth','Select','Lightning Funded'],sizes:['25K','50K','100K','150K']},
+ 'Alpha Futures':{types:['Zero','Standard / Premium','Advanced','Direct'],sizes:['25K','50K','100K','150K']},
+ 'MyFundedFutures':{types:['Rapid','Rapid EOD','Pro','Builder'],sizes:['25K','50K','100K','150K']},
+ 'MyFundedPerps':{types:['Select','Prime','Signature','Elite'],sizes:['5K','10K','25K','50K','100K']},
+ 'Vest Markets':{types:['1-Step','2-Step','Instant'],sizes:['10K','25K','50K']}
+};
+const MOODS=['😎 Calm','😬 Anxious','😡 Tilted','🤑 Greedy','😴 Bored','🔥 Locked in'];
+const $=id=>document.getElementById(id);
+const load=k=>JSON.parse(localStorage.getItem(k)||'[]');
+let accts=load('pd_accts'),money=load('pd_money'),journal=load('pd_journal');
+let selMood='';
+const fmt=n=>(n<0?'-$':'$')+Math.abs(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+const cls=n=>n>=0?'pos':'neg';
+const iso=d=>d.toISOString().slice(0,10);
+const todayS=iso(new Date());
+let calDate=new Date();
+
+function saveAll(){localStorage.setItem('pd_accts',JSON.stringify(accts));localStorage.setItem('pd_money',JSON.stringify(money));localStorage.setItem('pd_journal',JSON.stringify(journal));render()}
+
+/* tabs */
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{
+ document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');
+ document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));$('p-'+b.dataset.p).classList.add('active');
+});
+
+/* dropdowns */
+function fillFirms(sel){sel.innerHTML=Object.keys(FIRMS).map(f=>`<option>${f}</option>`).join('')}
+function fillTypes(firmSel,typeSel){typeSel.innerHTML=FIRMS[firmSel.value].types.map(t=>`<option>${t}</option>`).join('')}
+function fillSizes(){$('aSize').innerHTML=FIRMS[$('aFirm').value].sizes.map(s=>`<option>${s}</option>`).join('')}
+['aFirm','mFirm','jFirm'].forEach(id=>fillFirms($(id)));
+fillTypes($('aFirm'),$('aType'));fillSizes();fillTypes($('mFirm'),$('mType'));
+$('aFirm').onchange=()=>{fillTypes($('aFirm'),$('aType'));fillSizes()};
+$('mFirm').onchange=()=>fillTypes($('mFirm'),$('mType'));
+['aDate','mDate','jDate'].forEach(id=>$(id).value=todayS);
+$('today').textContent=new Date().toDateString();
+$('moods').innerHTML=MOODS.map(m=>`<button type="button" class="mood" data-m="${m}" title="${m}">${m.split(' ')[0]}</button>`).join('');
+document.querySelectorAll('.mood').forEach(b=>b.onclick=()=>{selMood=b.dataset.m;document.querySelectorAll('.mood').forEach(x=>x.classList.toggle('on',x===b))});
+
+/* forms */
+$('fAcct').onsubmit=e=>{e.preventDefault();accts.push({id:Date.now(),firm:$('aFirm').value,type:$('aType').value,size:$('aSize').value,stage:$('aStage').value,name:$('aName').value||'Unnamed',date:$('aDate').value});$('aName').value='';saveAll()};
+$('fMoney').onsubmit=e=>{e.preventDefault();money.push({id:Date.now(),kind:$('mKind').value,firm:$('mFirm').value,type:$('mType').value,amt:Math.abs(parseFloat($('mAmt').value)),date:$('mDate').value,note:$('mNote').value});$('mAmt').value='';$('mNote').value='';saveAll()};
+$('fJ').onsubmit=e=>{e.preventDefault();journal.push({id:Date.now(),date:$('jDate').value,firm:$('jFirm').value,pnl:parseFloat($('jPnl').value),trades:$('jTrades').value,rules:$('jRules').value,disc:parseFloat($('jDisc').value)||0,mood:selMood,notes:$('jNotes').value});$('jPnl').value='';$('jTrades').value='';$('jDisc').value='';$('jNotes').value='';saveAll()};
+
+function delItem(list,id){if(!confirm('Delete this entry?'))return;if(list==='a')accts=accts.filter(x=>x.id!==id);if(list==='m')money=money.filter(x=>x.id!==id);if(list==='j')journal=journal.filter(x=>x.id!==id);saveAll()}
+function setStage(id,s){const a=accts.find(x=>x.id===id);a.stage=s;saveAll()}
+function calMove(n){calDate.setMonth(calDate.getMonth()+n);render()}
+
+/* backup */
+function exportData(){const blob=new Blob([JSON.stringify({accts,money,journal},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='prop-desk-backup-'+todayS+'.json';a.click()}
+
+/* helpers */
+const sum=a=>a.reduce((s,x)=>s+x,0);
+function inRange(d,days){return (new Date(todayS)-new Date(d))/864e5<days&&new Date(d)<=new Date(todayS)}
+function pnlByDate(){const m={};journal.forEach(j=>m[j.date]=(m[j.date]||0)+j.pnl);return m}
+function groupBy(arr,fn){const m={};arr.forEach(x=>{const k=fn(x);(m[k]=m[k]||[]).push(x)});return m}
+
+function render(){
+ const buys=money.filter(m=>m.kind!=='payout'),pays=money.filter(m=>m.kind==='payout');
+ const spent=sum(buys.map(m=>m.amt)),out=sum(pays.map(m=>m.amt));
+ const days=pnlByDate();
+ const jt=journal.filter(j=>j.date===todayS);
+
+ /* dashboard KPIs */
+ const setM=(id,v)=>{$(id).textContent=fmt(v);$(id).className='value '+cls(v)};
+ setM('kToday',sum(jt.map(j=>j.pnl)));
+ setM('kWeek',sum(journal.filter(j=>inRange(j.date,7)).map(j=>j.pnl)));
+ setM('kMonth',sum(journal.filter(j=>inRange(j.date,30)).map(j=>j.pnl)));
+ $('kPayouts').textContent=fmt(out);$('kSpent').textContent=fmt(spent);setM('kNet',out-spent);
+ const cnt=s=>accts.filter(a=>a.stage===s).length;
+ $('kEval').textContent=cnt('eval');$('kFunded').textContent=cnt('funded');$('kLive').textContent=cnt('live');$('kFailed').textContent=cnt('failed');
+
+ /* accounts by firm */
+ const byF=groupBy(accts,a=>a.firm);
+ $('tFirmAccts').innerHTML='<tr><th>Firm</th><th>Eval</th><th>Funded</th><th>Live</th><th>Failed</th></tr>'+Object.keys(FIRMS).map(f=>{const l=byF[f]||[];const c=s=>l.filter(a=>a.stage===s).length;return `<tr><td><b>${f}</b></td><td>${c('eval')}</td><td>${c('funded')}</td><td>${c('live')}</td><td>${c('failed')}</td></tr>`}).join('');
+
+ /* calendar */
+ const y=calDate.getFullYear(),mo=calDate.getMonth();
+ $('calTitle').textContent=calDate.toLocaleString(undefined,{month:'long',year:'numeric'});
+ const first=new Date(y,mo,1).getDay(),dim=new Date(y,mo+1,0).getDate();
+ let ch=['S','M','T','W','T','F','S'].map(d=>`<div class="h">${d}</div>`).join('');
+ for(let i=0;i<first;i++)ch+='<div></div>';
+ for(let d=1;d<=dim;d++){const k=`${y}-${String(mo+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;const v=days[k];ch+=`<div class="d ${v>0?'win':v<0?'loss':''}"><b>${d}</b><span>${v!==undefined?fmt(v).replace('.00',''):''}</span></div>`}
+ $('cal').innerHTML=ch;
+
+ /* accounts table */
+ $('tAccts').innerHTML='<tr><th>Firm</th><th>Type</th><th>Size</th><th>Name</th><th>Stage</th><th></th></tr>'+[...accts].reverse().map(a=>`<tr><td>${a.firm}</td><td>${a.type}</td><td>${a.size}</td><td>${a.name}</td><td><select onchange="setStage(${a.id},this.value)">${['eval','funded','live','failed'].map(s=>`<option value="${s}" ${a.stage===s?'selected':''}>${s}</option>`).join('')}</select></td><td><button class="x" onclick="delItem('a',${a.id})">✕</button></td></tr>`).join('');
+
+ /* money */
+ setM('mNet',out-spent);$('mBought').textContent=fmt(spent);$('mOut').textContent=fmt(out);
+ $('mRoi').textContent=spent?Math.round((out-spent)/spent*100)+'%':'0%';
+ const mf=groupBy(money,m=>m.firm);
+ $('tMoneyFirm').innerHTML='<tr><th>Firm</th><th>Spent</th><th>Withdrawn</th><th>Net</th></tr>'+Object.keys(mf).map(f=>{const s=sum(mf[f].filter(m=>m.kind!=='payout').map(m=>m.amt)),o=sum(mf[f].filter(m=>m.kind==='payout').map(m=>m.amt));return `<tr><td><b>${f}</b></td><td class="neg">${fmt(s)}</td><td class="pos">${fmt(o)}</td><td class="${cls(o-s)}">${fmt(o-s)}</td></tr>`}).join('');
+ $('tMoney').innerHTML='<tr><th>Date</th><th>Kind</th><th>Firm</th><th>Type</th><th>Amount</th><th></th></tr>'+[...money].sort((a,b)=>b.date.localeCompare(a.date)).map(m=>`<tr><td>${m.date}</td><td>${m.kind}</td><td>${m.firm}</td><td>${m.type}</td><td class="${m.kind==='payout'?'pos':'neg'}">${fmt(m.amt)}</td><td><button class="x" onclick="delItem('m',${m.id})">✕</button></td></tr>`).join('');
+
+ /* journal */
+ $('tJ').innerHTML='<tr><th>Date</th><th>Firm</th><th>P&L</th><th>Mood</th><th>Rules</th><th>Disc</th><th>Notes</th><th></th></tr>'+[...journal].sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id).map(j=>`<tr><td>${j.date}</td><td>${j.firm}</td><td class="${cls(j.pnl)}">${fmt(j.pnl)}</td><td>${j.mood.split(' ')[0]||''}</td><td>${j.rules}</td><td>${j.disc||''}</td><td>${j.notes}</td><td><button class="x" onclick="delItem('j',${j.id})">✕</button></td></tr>`).join('');
+
+ /* stats */
+ const dv=Object.values(days),w=dv.filter(v=>v>0),l=dv.filter(v=>v<0);
+ $('sWin').textContent=dv.length?Math.round(w.length/dv.length*100)+'%':'0%';
+ $('sAvgW').textContent=fmt(w.length?sum(w)/w.length:0);$('sAvgL').textContent=fmt(l.length?sum(l)/l.length:0);
+ $('sPf').textContent=l.length&&sum(l)?(sum(w)/Math.abs(sum(l))).toFixed(2):'0';
+ $('sBest').textContent=fmt(dv.length?Math.max(...dv):0);$('sWorst').textContent=fmt(dv.length?Math.min(...dv):0);
+ $('sRules').textContent=journal.length?Math.round(journal.filter(j=>j.rules==='Followed plan').length/journal.length*100)+'%':'0%';
+ const dl=journal.filter(j=>j.disc);$('sDisc').textContent=dl.length?(sum(dl.map(j=>j.disc))/dl.length).toFixed(1):'0';
+ const jf=groupBy(journal,j=>j.firm);
+ $('tPnlFirm').innerHTML='<tr><th>Firm</th><th>Days</th><th>Total P&L</th></tr>'+Object.keys(jf).map(f=>{const t=sum(jf[f].map(j=>j.pnl));return `<tr><td><b>${f}</b></td><td>${jf[f].length}</td><td class="${cls(t)}">${fmt(t)}</td></tr>`}).join('');
+ const jm=groupBy(journal.filter(j=>j.mood),j=>j.mood);
+ $('tPnlMood').innerHTML='<tr><th>Mood</th><th>Days</th><th>Avg P&L</th></tr>'+Object.keys(jm).map(m=>{const t=sum(jm[m].map(j=>j.pnl))/jm[m].length;return `<tr><td>${m}</td><td>${jm[m].length}</td><td class="${cls(t)}">${fmt(t)}</td></tr>`}).join('');
+ $('tPass').innerHTML='<tr><th>Firm</th><th>Passed (funded or live)</th><th>Failed</th><th>Pass rate</th></tr>'+Object.keys(byF).map(f=>{const l2=byF[f];const p=l2.filter(a=>a.stage==='funded'||a.stage==='live').length,fl=l2.filter(a=>a.stage==='failed').length;return `<tr><td><b>${f}</b></td><td>${p}</td><td>${fl}</td><td>${p+fl?Math.round(p/(p+fl)*100)+'%':'-'}</td></tr>`}).join('');
+}
+render();
+</script>
+</body>
+</html>

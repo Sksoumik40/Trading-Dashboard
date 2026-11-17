@@ -11,11 +11,16 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#000000;--side:#050505;--panel:#0b0b0b;--panel2:#141414;--line:#222222;--text:#f2f2f2;--muted:#8a8a8a;--green:#3ddc97;--red:#ff6b81;--gold:#ffc857;--accent:#ffffff;--accent2:#3ddc97}
+:root{--bg:#000000;--side:rgba(4,6,5,.92);--panel:rgba(10,13,12,.86);--panel2:rgba(22,27,25,.92);--line:#1f2a25;--text:#f2f2f2;--muted:#8d9a94;--green:#3ddc97;--red:#ff6b81;--gold:#ffc857;--accent:#ffffff;--accent2:#3ddc97}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0;font-family:'Merriweather',Georgia,serif;background:var(--bg);color:var(--text);min-height:100vh}
-.layout{display:flex;min-height:100vh}
-.side{width:230px;flex-shrink:0;background:var(--side);border-right:1px solid var(--line);padding:26px 14px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:6px;overflow-y:auto}
+body{margin:0;font-family:'Merriweather',Georgia,serif;background:#000;color:var(--text);min-height:100vh}
+#bg{position:fixed;inset:0;z-index:0;pointer-events:none;background:
+ radial-gradient(900px 500px at 85% 0%,rgba(61,220,151,.13),transparent 60%),
+ radial-gradient(900px 600px at 0% 100%,rgba(255,107,129,.11),transparent 60%),
+ linear-gradient(180deg,#02050a 0%,#000 100%)}
+#bg svg{position:absolute;inset:0;width:100%;height:100%;opacity:.5}
+.layout{display:flex;min-height:100vh;position:relative;z-index:1}
+.side{width:230px;flex-shrink:0;background:var(--side);backdrop-filter:blur(6px);border-right:1px solid var(--line);padding:26px 14px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:6px;overflow-y:auto}
 .brand{font-size:30px;font-weight:900;line-height:1.1;margin:0 8px 4px;letter-spacing:.3px}
 .owner{font-size:14px;font-weight:700;color:var(--text);margin:0 8px 4px;letter-spacing:.4px}
 .sub{color:var(--muted);font-size:11px;margin:0 8px 22px}
@@ -26,7 +31,7 @@ body{margin:0;font-family:'Merriweather',Georgia,serif;background:var(--bg);colo
 .main{flex:1;min-width:0;padding:26px 24px 60px;max-width:1250px}
 .page{display:none}.page.active{display:block}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:16px}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px}
+.card{background:var(--panel);backdrop-filter:blur(4px);border:1px solid var(--line);border-radius:14px;padding:16px}
 .card h2{font-size:15px;margin:0 0 12px;color:var(--text);font-weight:700}
 .label{color:var(--muted);font-size:11px;margin-bottom:8px;text-transform:uppercase;letter-spacing:.7px}
 .value{font-size:23px;font-weight:900}
@@ -42,19 +47,25 @@ button.btn{background:#ffffff;color:#000000;border:none;padding:13px;border-radi
 button.btn:hover{background:#d8d8d8}
 button.ghost{background:var(--panel2);color:var(--text);border:1px solid var(--line);padding:9px 12px;border-radius:10px;cursor:pointer;font-family:inherit;font-size:12px}
 table{width:100%;border-collapse:collapse;font-size:12px}
-th,td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th,td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
 th{color:var(--muted);font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.5px}
+td input,td select{padding:7px;font-size:12px;min-width:90px}
 .x{background:none;border:none;color:var(--red);font-size:16px;cursor:pointer}
 .scroll{overflow-x:auto}
 .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
 .cal .d{aspect-ratio:1;border-radius:8px;background:var(--panel2);font-size:10px;padding:5px;color:var(--muted);display:flex;flex-direction:column;justify-content:space-between}
 .cal .d b{font-size:11px}
-.cal .d.win{background:rgba(61,220,151,.22);color:var(--text)}
-.cal .d.loss{background:rgba(255,107,129,.22);color:var(--text)}
+.cal .d.win{background:rgba(61,220,151,.28);color:var(--text)}
+.cal .d.loss{background:rgba(255,107,129,.28);color:var(--text)}
+.cal .d.today{outline:1px solid #fff}
 .cal .h{text-align:center;color:var(--muted);font-size:11px;padding:4px}
 .muted{color:var(--muted);font-size:12px}
 .mood{font-size:22px;cursor:pointer;opacity:.4;background:none;border:none}
 .mood.on{opacity:1;transform:scale(1.15)}
+.chain{font-size:11px;color:var(--muted);line-height:1.6}
+.chain b{color:var(--text)}
+.pill{display:inline-block;padding:2px 9px;border-radius:99px;font-size:10px;font-weight:700;border:1px solid var(--line);background:var(--panel2)}
+.pill.eval{color:var(--gold)}.pill.funded{color:var(--green)}.pill.live{color:#5ec8ff}.pill.failed{color:var(--red)}
 @media(max-width:760px){
  .layout{flex-direction:column}
  .side{width:100%;height:auto;position:sticky;top:0;z-index:5;flex-direction:row;flex-wrap:wrap;align-items:center;padding:10px;border-right:none;border-bottom:1px solid var(--line);gap:4px;overflow-y:visible}
@@ -69,6 +80,7 @@ th{color:var(--muted);font-weight:700;font-size:10px;text-transform:uppercase;le
 </style>
 </head>
 <body>
+<div id="bg"></div>
 <div class="layout">
 <nav class="side">
   <div class="brand">Prop Desk</div>
@@ -86,6 +98,9 @@ th{color:var(--muted);font-weight:700;font-size:10px;text-transform:uppercase;le
   <button class="ghost" onclick="exportData()">Backup data</button>
 </nav>
 <main class="main">
+
+
+
 
 
 
@@ -110,30 +125,38 @@ th{color:var(--muted);font-weight:700;font-size:10px;text-transform:uppercase;le
   </div>
   <div class="row2">
     <div class="card"><h2>Accounts by Firm</h2><div class="scroll"><table id="tFirmAccts"></table></div></div>
-    <div class="card"><h2>Profit Calendar</h2><div style="display:flex;gap:8px;margin-bottom:10px;align-items:center"><button class="ghost" onclick="calMove(-1)">Prev</button><b id="calTitle" style="flex:1;text-align:center"></b><button class="ghost" onclick="calMove(1)">Next</button></div><div class="cal" id="cal"></div></div>
+    <div class="card"><h2>Profit Calendar</h2>
+      <div style="display:flex;gap:8px;margin-bottom:10px;align-items:center"><button class="ghost" onclick="calMove(-1)">Prev</button><b id="calTitle" style="flex:1;text-align:center"></b><button class="ghost" onclick="calMove(1)">Next</button></div>
+      <div class="cal" id="cal"></div>
+      <p class="muted" style="margin-top:10px">Each day shows trading P&L from the Journal plus payouts you withdrew that day. Green is up, red is down.</p>
+    </div>
   </div>
 </div>
 
-<!-- ACCOUNTS -->
+<!-- ACCOUNTS (map of every account and its life story) -->
 <div class="page" id="p-accts">
   <div class="card" style="margin-bottom:16px">
     <h2>Add Account</h2>
+    <p class="muted" style="margin:0 0 10px">Only the account details go here. What you paid goes on the Money Spent tab, where you pick this account.</p>
     <form class="fgrid" id="fAcct">
       <div><label class="f">Firm</label><select id="aFirm"></select></div>
       <div><label class="f">Account type</label><select id="aType"></select></div>
       <div><label class="f">Size</label><select id="aSize"></select></div>
       <div><label class="f">Stage</label><select id="aStage"><option value="eval">Evaluation</option><option value="funded">Funded</option><option value="live">Live</option><option value="failed">Failed / Blown</option></select></div>
-      <div><label class="f">Nickname or ID</label><input id="aName" placeholder="e.g. LT-50K-03"></div>
+      <div><label class="f">Nickname or ID</label><input id="aName" placeholder="e.g. Lucid 50K-01"></div>
       <div><label class="f">Start date</label><input type="date" id="aDate"></div>
-      <div><label class="f">What you paid for it</label><select id="aCostKind"><option value="buy">Eval purchase</option><option value="activation">Activation fee</option><option value="sub">Monthly subscription</option><option value="">Nothing / already logged</option></select></div>
-      <div><label class="f">Cost ($)</label><input type="number" step="0.01" id="aCost" placeholder="e.g. 149.00"></div>
       <button class="btn" type="submit">Add Account</button>
     </form>
   </div>
-  <div class="card"><h2>All Accounts</h2><div class="scroll"><table id="tAccts"></table></div></div>
+  <div class="card" style="margin-bottom:16px">
+    <h2>Account Map</h2>
+    <p class="muted" style="margin:0 0 10px">One row per account you bought. Change the stage when it passes or fails, and rename it for its new life (for example Lucid 50K-01 becomes Lucid 50K-01 Funded). Spent, payouts and net come from the Money Spent and Payouts tabs.</p>
+    <div class="scroll"><table id="tAccts"></table></div>
+  </div>
+  <div class="card"><h2>Account History</h2><p class="muted" style="margin:0 0 10px">The full chain for each account: every name it has had, every stage change, every cost and every payout.</p><div id="acctHistory"></div></div>
 </div>
 
-<!-- MONEY SPENT -->
+<!-- MONEY SPENT (the only place costs are entered) -->
 <div class="page" id="p-money">
   <div class="grid">
     <div class="card"><div class="label">Total Spent</div><div class="value neg" id="mSpent">$0</div></div>
@@ -142,15 +165,15 @@ th{color:var(--muted);font-weight:700;font-size:10px;text-transform:uppercase;le
     <div class="card"><div class="label">Activation + Subs + Data</div><div class="value neg" id="mOther">$0</div></div>
   </div>
   <div class="card" style="margin-bottom:16px">
-    <h2>Add Extra Cost (reset, activation, subscription, data)</h2>
-    <p class="muted" style="margin:0 0 10px">Your first purchase is entered on the Accounts tab when you add the account. Use this form for any cost after that. Pick the account and the firm, type and size fill in on their own.</p>
+    <h2>Add Cost</h2>
+    <p class="muted" style="margin:0 0 10px">Pick the account first and the firm, type and size fill in on their own. The cost then shows up on that account in the Accounts tab.</p>
     <form class="fgrid" id="fMoney">
-      <div><label class="f">Kind</label><select id="mKind"><option value="reset">Reset</option><option value="activation">Activation fee</option><option value="sub">Monthly subscription</option><option value="data">Data / platform fee</option></select></div>
-      <div><label class="f">Account (fills in the rest)</label><select id="mAcct"><option value="">None</option></select></div>
+      <div><label class="f">Account</label><select id="mAcct"><option value="">None</option></select></div>
+      <div><label class="f">What you paid for</label><select id="mKind"><option value="buy">Eval purchase</option><option value="reset">Reset</option><option value="activation">Activation fee</option><option value="sub">Monthly subscription</option><option value="data">Data / platform fee</option></select></div>
       <div><label class="f">Firm</label><select id="mFirm"></select></div>
       <div><label class="f">Account type</label><select id="mType"></select></div>
       <div><label class="f">Size</label><select id="mSize"></select></div>
-      <div><label class="f">Amount ($)</label><input type="number" step="0.01" id="mAmt" required></div>
+      <div><label class="f">Cost ($)</label><input type="number" step="0.01" id="mAmt" required></div>
       <div><label class="f">Date</label><input type="date" id="mDate"></div>
       <div><label class="f">Note</label><input id="mNote" placeholder="promo code, which account..."></div>
       <button class="btn" type="submit">Add Cost</button>
@@ -158,7 +181,7 @@ th{color:var(--muted);font-weight:700;font-size:10px;text-transform:uppercase;le
   </div>
   <div class="row2">
     <div class="card"><h2>Spent by Firm</h2><div class="scroll"><table id="tSpentFirm"></table></div></div>
-    <div class="card"><h2>Purchase History</h2><div class="scroll"><table id="tMoney"></table></div></div>
+    <div class="card"><h2>Cost History</h2><div class="scroll"><table id="tMoney"></table></div></div>
   </div>
 </div>
 
@@ -173,10 +196,10 @@ th{color:var(--muted);font-weight:700;font-size:10px;text-transform:uppercase;le
   <div class="card" style="margin-bottom:16px">
     <h2>Add Payout Withdrawn</h2>
     <form class="fgrid" id="fPay">
+      <div><label class="f">Account</label><select id="pAcct"><option value="">None</option></select></div>
       <div><label class="f">Firm</label><select id="pFirm"></select></div>
       <div><label class="f">Account type</label><select id="pType"></select></div>
       <div><label class="f">Size</label><select id="pSize"></select></div>
-      <div><label class="f">Linked account (optional)</label><select id="pAcct"><option value="">None</option></select></div>
       <div><label class="f">Amount withdrawn ($)</label><input type="number" step="0.01" id="pAmt" required></div>
       <div><label class="f">Date</label><input type="date" id="pDate"></div>
       <div><label class="f">Note</label><input id="pNote" placeholder="payout number, method..."></div>
@@ -195,9 +218,9 @@ th{color:var(--muted);font-weight:700;font-size:10px;text-transform:uppercase;le
     <h2>Log a Trading Day</h2>
     <form class="fgrid" id="fJ">
       <div><label class="f">Date</label><input type="date" id="jDate"></div>
+      <div><label class="f">Account (optional)</label><select id="jAcct"><option value="">All / none</option></select></div>
       <div><label class="f">Firm</label><select id="jFirm"></select></div>
       <div><label class="f">Size</label><select id="jSize"></select></div>
-      <div><label class="f">Account (optional)</label><select id="jAcct"><option value="">All / none</option></select></div>
       <div><label class="f">P&L today ($)</label><input type="number" step="0.01" id="jPnl" required></div>
       <div><label class="f">Trades taken</label><input type="number" id="jTrades"></div>
       <div><label class="f">Rules</label><select id="jRules"><option>Followed plan</option><option>Broke rules</option></select></div>
@@ -258,7 +281,7 @@ th{color:var(--muted);font-weight:700;font-size:10px;text-transform:uppercase;le
   <div class="card" style="margin-bottom:16px">
     <h2>Per account: net return on every account</h2>
     <div class="scroll"><table id="tAcctMath"></table></div>
-    <p class="muted">Costs and payouts count per account only if you picked the linked account when adding them.</p>
+    <p class="muted">Costs and payouts count per account only if you picked the account when adding them.</p>
   </div>
   <div class="row2">
     <div class="card"><h2>Per firm: consolidated</h2><div class="scroll"><table id="tFirmMath"></table></div></div>
@@ -312,6 +335,8 @@ th{color:var(--muted);font-weight:700;font-size:10px;text-transform:uppercase;le
 
 
 
+
+
  <script>
 const FIRMS={
  'Lucid Trading':{types:['LucidFlex','LucidPro','LucidDaily','LucidDirect'],sizes:['25K','50K','100K','150K']},
@@ -324,17 +349,20 @@ const FIRMS={
 };
 const MOODS=['😎 Calm','😬 Anxious','😡 Tilted','🤑 Greedy','😴 Bored','🔥 Locked in'];
 const KINDS={buy:'Eval purchase',reset:'Reset',activation:'Activation fee',sub:'Monthly subscription',data:'Data / platform fee'};
+const STAGES={eval:'Evaluation',funded:'Funded',live:'Live',failed:'Failed / Blown'};
 const $=id=>document.getElementById(id);
 const load=k=>JSON.parse(localStorage.getItem(k)||'[]');
 let accts=load('pd_accts'),money=load('pd_money'),journal=load('pd_journal');
-/* old entries saved as payouts in money list move to the payouts list */
+/* old payouts that were saved inside the money list move to the payouts list */
 let payouts=load('pd_payouts');
 const oldPay=money.filter(m=>m.kind==='payout');
 if(oldPay.length){payouts=payouts.concat(oldPay);money=money.filter(m=>m.kind!=='payout')}
+/* every account gets a history so its life story is kept */
+accts.forEach(a=>{if(!a.history)a.history=[{date:a.date||'',text:'Added as '+a.name+' ('+(STAGES[a.stage]||a.stage)+')'}]});
 let selMood='';
 const fmt=n=>(n<0?'-$':'$')+Math.abs(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
 const cls=n=>n>=0?'pos':'neg';
-const iso=d=>d.toISOString().slice(0,10);
+const iso=d=>{const z=new Date(d.getTime()-d.getTimezoneOffset()*60000);return z.toISOString().slice(0,10)};
 const todayS=iso(new Date());
 let calDate=new Date();
 const sum=a=>a.reduce((s,x)=>s+x,0);
@@ -374,60 +402,12 @@ $('today').textContent=new Date().toDateString();
 $('moods').innerHTML=MOODS.map(m=>`<button type="button" class="mood" data-m="${m}" title="${m}">${m.split(' ')[0]}</button>`).join('');
 document.querySelectorAll('.mood').forEach(b=>b.onclick=()=>{selMood=b.dataset.m;document.querySelectorAll('.mood').forEach(x=>x.classList.toggle('on',x===b))});
 
-/* forms */
-$('fAcct').onsubmit=e=>{
- e.preventDefault();
- const id=Date.now();
- accts.push({id,firm:$('aFirm').value,type:$('aType').value,size:$('aSize').value,stage:$('aStage').value,name:$('aName').value||'Unnamed',date:$('aDate').value});
- const cost=parseFloat($('aCost').value),kind=$('aCostKind').value;
- if(cost>0&&kind){money.push({id:id+1,kind,firm:$('aFirm').value,type:$('aType').value,size:$('aSize').value,acct:String(id),amt:cost,date:$('aDate').value,note:'Added with account'})}
- $('aName').value='';$('aCost').value='';
- saveAll();
-};
-/* picking an account on the extra cost form fills firm, type and size */
-$('mAcct').addEventListener('change',()=>{
- const a=acctById($('mAcct').value);
- if(!a)return;
- $('mFirm').value=a.firm;fillTypes($('mFirm'),$('mType'));fillSizes($('mFirm'),$('mSize'));
- $('mType').value=a.type;$('mSize').value=a.size;
-});
-$('pAcct').addEventListener('change',()=>{
- const a=acctById($('pAcct').value);
- if(!a)return;
- $('pFirm').value=a.firm;fillTypes($('pFirm'),$('pType'));fillSizes($('pFirm'),$('pSize'));
- $('pType').value=a.type;$('pSize').value=a.size;
-});
-$('jAcct').addEventListener('change',()=>{
- const a=acctById($('jAcct').value);
- if(!a)return;
- $('jFirm').value=a.firm;fillSizes($('jFirm'),$('jSize'));$('jSize').value=a.size;
-});
-$('fMoney').onsubmit=e=>{e.preventDefault();money.push({id:Date.now(),kind:$('mKind').value,firm:$('mFirm').value,type:$('mType').value,size:$('mSize').value,acct:$('mAcct').value,amt:Math.abs(parseFloat($('mAmt').value)),date:$('mDate').value,note:$('mNote').value});$('mAmt').value='';$('mNote').value='';saveAll()};
-$('fPay').onsubmit=e=>{e.preventDefault();payouts.push({id:Date.now(),firm:$('pFirm').value,type:$('pType').value,size:$('pSize').value,acct:$('pAcct').value,amt:Math.abs(parseFloat($('pAmt').value)),date:$('pDate').value,note:$('pNote').value});$('pAmt').value='';$('pNote').value='';saveAll()};
-$('fJ').onsubmit=e=>{e.preventDefault();journal.push({id:Date.now(),date:$('jDate').value,firm:$('jFirm').value,size:$('jSize').value,acct:$('jAcct').value,pnl:parseFloat($('jPnl').value),trades:$('jTrades').value,rules:$('jRules').value,disc:parseFloat($('jDisc').value)||0,mood:selMood,notes:$('jNotes').value});$('jPnl').value='';$('jTrades').value='';$('jDisc').value='';$('jNotes').value='';saveAll()};
-
-function delItem(list,id){
- if(!confirm('Delete this entry?'))return;
- if(list==='a')accts=accts.filter(x=>x.id!==id);
- if(list==='m')money=money.filter(x=>x.id!==id);
- if(list==='p')payouts=payouts.filter(x=>x.id!==id);
- if(list==='j')journal=journal.filter(x=>x.id!==id);
- saveAll();
-}
-function setStage(id,s){const a=accts.find(x=>x.id===id);a.stage=s;saveAll()}
-function calMove(n){calDate.setMonth(calDate.getMonth()+n);render()}
-
-/* backup */
-function exportData(){
- const blob=new Blob([JSON.stringify({accts,money,payouts,journal},null,2)],{type:'application/json'});
- const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='prop-desk-backup-'+todayS+'.json';a.click();
-}
-
 /* helpers */
 function inRange(d,days){return (new Date(todayS)-new Date(d))/864e5<days&&new Date(d)<=new Date(todayS)}
 function pnlByDate(){const m={};journal.forEach(j=>m[j.date]=(m[j.date]||0)+j.pnl);return m}
+function calByDate(){const m=pnlByDate();payouts.forEach(p=>{if(p.date)m[p.date]=(m[p.date]||0)+p.amt});return m}
 function groupBy(arr,fn){const m={};arr.forEach(x=>{const k=fn(x);(m[k]=m[k]||[]).push(x)});return m}
-function acctLabel(a){return a.firm+' | '+a.type+' '+a.size+' | '+a.name}
+function acctLabel(a){return a.name+' | '+a.firm+' '+a.type+' '+a.size}
 function acctById(id){return accts.find(a=>String(a.id)===String(id))}
 function fillAcctSelects(){
  const opts=accts.map(a=>`<option value="${a.id}">${acctLabel(a)}</option>`).join('');
@@ -437,6 +417,101 @@ function fillAcctSelects(){
   $(id).value=cur;
  });
 }
+
+/* forms */
+$('fAcct').onsubmit=e=>{
+ e.preventDefault();
+ const name=$('aName').value||'Unnamed';
+ accts.push({id:Date.now(),firm:$('aFirm').value,type:$('aType').value,size:$('aSize').value,stage:$('aStage').value,name,date:$('aDate').value,history:[{date:$('aDate').value,text:'Added as '+name+' ('+STAGES[$('aStage').value]+')'}]});
+ $('aName').value='';
+ saveAll();
+};
+$('fMoney').onsubmit=e=>{
+ e.preventDefault();
+ money.push({id:Date.now(),kind:$('mKind').value,firm:$('mFirm').value,type:$('mType').value,size:$('mSize').value,acct:$('mAcct').value,amt:Math.abs(parseFloat($('mAmt').value)),date:$('mDate').value,note:$('mNote').value});
+ $('mAmt').value='';$('mNote').value='';
+ saveAll();
+};
+$('fPay').onsubmit=e=>{
+ e.preventDefault();
+ payouts.push({id:Date.now(),firm:$('pFirm').value,type:$('pType').value,size:$('pSize').value,acct:$('pAcct').value,amt:Math.abs(parseFloat($('pAmt').value)),date:$('pDate').value,note:$('pNote').value});
+ $('pAmt').value='';$('pNote').value='';
+ saveAll();
+};
+$('fJ').onsubmit=e=>{
+ e.preventDefault();
+ journal.push({id:Date.now(),date:$('jDate').value,firm:$('jFirm').value,size:$('jSize').value,acct:$('jAcct').value,pnl:parseFloat($('jPnl').value),trades:$('jTrades').value,rules:$('jRules').value,disc:parseFloat($('jDisc').value)||0,mood:selMood,notes:$('jNotes').value});
+ $('jPnl').value='';$('jTrades').value='';$('jDisc').value='';$('jNotes').value='';
+ saveAll();
+};
+
+/* picking an account fills firm, type and size so nothing is typed twice */
+function autofill(acctId,firmId,typeId,sizeId){
+ $(acctId).addEventListener('change',()=>{
+  const a=acctById($(acctId).value);
+  if(!a)return;
+  $(firmId).value=a.firm;
+  if(typeId)fillTypes($(firmId),$(typeId));
+  fillSizes($(firmId),$(sizeId));
+  if(typeId)$(typeId).value=a.type;
+  $(sizeId).value=a.size;
+ });
+}
+autofill('mAcct','mFirm','mType','mSize');
+autofill('pAcct','pFirm','pType','pSize');
+autofill('jAcct','jFirm',null,'jSize');
+
+/* account map actions: change stage, rename, delete */
+function setStage(id,s){
+ const a=acctById(id);if(!a||a.stage===s)return;
+ const old=a.stage;a.stage=s;
+ a.history.push({date:todayS,text:'Stage changed from '+STAGES[old]+' to '+STAGES[s]});
+ saveAll();
+}
+function renameAcct(id,name){
+ const a=acctById(id);name=(name||'').trim();
+ if(!a||!name||a.name===name)return;
+ a.history.push({date:todayS,text:'Renamed from '+a.name+' to '+name});
+ a.name=name;
+ saveAll();
+}
+function delItem(list,id){
+ if(!confirm('Delete this entry?'))return;
+ if(list==='a')accts=accts.filter(x=>String(x.id)!==String(id));
+ if(list==='m')money=money.filter(x=>x.id!==id);
+ if(list==='p')payouts=payouts.filter(x=>x.id!==id);
+ if(list==='j')journal=journal.filter(x=>x.id!==id);
+ saveAll();
+}
+function calMove(n){calDate.setMonth(calDate.getMonth()+n);render()}
+
+/* backup */
+function exportData(){
+ const blob=new Blob([JSON.stringify({accts,money,payouts,journal},null,2)],{type:'application/json'});
+ const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='prop-desk-backup-'+todayS+'.json';a.click();
+}
+
+/* background: a dark candlestick scene drawn in code, nothing to download */
+(function(){
+ let s=7;const rnd=()=>{s=(s*9301+49297)%233280;return s/233280};
+ const W=1600,H=900,n=64,cw=W/n;let price=470,out='';
+ let path='';
+ for(let i=0;i<n;i++){
+  const o=price,c=o+(rnd()-0.46)*60,hi=Math.max(o,c)+rnd()*34,lo=Math.min(o,c)-rnd()*34;price=c;
+  const x=i*cw+cw/2,col=c>=o?'#3ddc97':'#ff6b81';
+  out+=`<line x1="${x}" x2="${x}" y1="${hi}" y2="${lo}" stroke="${col}" stroke-width="2" opacity=".9"/><rect x="${x-cw*.3}" y="${Math.min(o,c)}" width="${cw*.6}" height="${Math.max(4,Math.abs(c-o))}" fill="${col}" opacity=".85"/>`;
+  path+=(i?'L':'M')+x+' '+c+' ';
+ }
+ let grid='';
+ for(let i=1;i<8;i++)grid+=`<line x1="0" x2="${W}" y1="${i*H/8}" y2="${i*H/8}" stroke="#ffffff" opacity=".05"/>`;
+ for(let i=1;i<16;i++)grid+=`<line y1="0" y2="${H}" x1="${i*W/16}" x2="${i*W/16}" stroke="#ffffff" opacity=".04"/>`;
+ $('bg').innerHTML=`<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice">${grid}<path d="${path}" fill="none" stroke="#ffffff" stroke-width="2" opacity=".25"/>${out}</svg>`;
+})();
+
+
+
+
+
 
 
 
@@ -450,6 +525,14 @@ function fillAcctSelects(){
  const days=pnlByDate();
  const setM=(id,v)=>{$(id).textContent=fmt(v);$(id).className='value '+cls(v)};
 
+ /* per account totals used all over */
+ const acctTot=a=>{
+  const s=sum(money.filter(m=>String(m.acct)===String(a.id)).map(m=>m.amt));
+  const o=sum(payouts.filter(p=>String(p.acct)===String(a.id)).map(p=>p.amt));
+  const t=sum(journal.filter(j=>String(j.acct)===String(a.id)).map(j=>j.pnl));
+  return {s,o,n:o-s,t};
+ };
+
  /* dashboard */
  setM('kToday',sum(journal.filter(j=>j.date===todayS).map(j=>j.pnl)));
  setM('kWeek',sum(journal.filter(j=>inRange(j.date,7)).map(j=>j.pnl)));
@@ -460,17 +543,35 @@ function fillAcctSelects(){
  const byF=groupBy(accts,a=>a.firm);
  $('tFirmAccts').innerHTML='<tr><th>Firm</th><th>Eval</th><th>Funded</th><th>Live</th><th>Failed</th></tr>'+Object.keys(FIRMS).map(f=>{const l=byF[f]||[];const c=s=>l.filter(a=>a.stage===s).length;return `<tr><td><b>${f}</b></td><td>${c('eval')}</td><td>${c('funded')}</td><td>${c('live')}</td><td>${c('failed')}</td></tr>`}).join('');
 
- /* calendar */
+ /* calendar: trading P&L plus payouts, so it fills from either */
+ const cdays=calByDate();
  const y=calDate.getFullYear(),mo=calDate.getMonth();
  $('calTitle').textContent=calDate.toLocaleString(undefined,{month:'long',year:'numeric'});
  const first=new Date(y,mo,1).getDay(),dim=new Date(y,mo+1,0).getDate();
  let ch=['S','M','T','W','T','F','S'].map(d=>`<div class="h">${d}</div>`).join('');
  for(let i=0;i<first;i++)ch+='<div></div>';
- for(let d=1;d<=dim;d++){const k=`${y}-${String(mo+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;const v=days[k];ch+=`<div class="d ${v>0?'win':v<0?'loss':''}"><b>${d}</b><span>${v!==undefined?fmt(v).replace('.00',''):''}</span></div>`}
+ for(let d=1;d<=dim;d++){
+  const k=`${y}-${String(mo+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;const v=cdays[k];
+  ch+=`<div class="d ${v>0?'win':v<0?'loss':''} ${k===todayS?'today':''}"><b>${d}</b><span>${v!==undefined?fmt(v).replace('.00',''):''}</span></div>`;
+ }
  $('cal').innerHTML=ch;
 
- /* accounts */
- $('tAccts').innerHTML='<tr><th>Firm</th><th>Type</th><th>Size</th><th>Name</th><th>Stage</th><th></th></tr>'+[...accts].reverse().map(a=>`<tr><td>${a.firm}</td><td>${a.type}</td><td>${a.size}</td><td>${a.name}</td><td><select onchange="setStage(${a.id},this.value)">${['eval','funded','live','failed'].map(s=>`<option value="${s}" ${a.stage===s?'selected':''}>${s}</option>`).join('')}</select></td><td><button class="x" onclick="delItem('a',${a.id})">✕</button></td></tr>`).join('');
+ /* account map: one row per account, with stage, rename and linked money */
+ $('tAccts').innerHTML='<tr><th>Name (editable)</th><th>Firm</th><th>Type</th><th>Size</th><th>Stage</th><th>Spent</th><th>Payouts</th><th>Net</th><th></th></tr>'+[...accts].reverse().map(a=>{
+  const t=acctTot(a);
+  return `<tr><td><input value="${a.name.replace(/"/g,'&quot;')}" onchange="renameAcct(${a.id},this.value)"></td><td>${a.firm}</td><td>${a.type}</td><td>${a.size}</td><td><select onchange="setStage(${a.id},this.value)">${Object.keys(STAGES).map(s=>`<option value="${s}" ${a.stage===s?'selected':''}>${STAGES[s]}</option>`).join('')}</select></td><td class="neg">${fmt(t.s)}</td><td class="pos">${fmt(t.o)}</td><td class="${cls(t.n)}">${fmt(t.n)}</td><td><button class="x" onclick="delItem('a',${a.id})">✕</button></td></tr>`;
+ }).join('');
+
+ /* account history: the full chain for every account */
+ $('acctHistory').innerHTML=accts.length?[...accts].reverse().map(a=>{
+  const t=acctTot(a);
+  const ev=[];
+  a.history.forEach(h=>ev.push({d:h.date||'',t:h.text}));
+  money.filter(m=>String(m.acct)===String(a.id)).forEach(m=>ev.push({d:m.date||'',t:`Paid ${fmt(m.amt)} for ${KINDS[m.kind]||m.kind}`}));
+  payouts.filter(p=>String(p.acct)===String(a.id)).forEach(p=>ev.push({d:p.date||'',t:`Payout withdrawn ${fmt(p.amt)}`}));
+  ev.sort((x,y2)=>x.d.localeCompare(y2.d));
+  return `<div class="card" style="margin-bottom:10px;background:var(--panel2)"><div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:8px"><b>${a.name}</b><span><span class="pill ${a.stage}">${STAGES[a.stage]}</span> &nbsp; spent <span class="neg">${fmt(t.s)}</span> &nbsp; payouts <span class="pos">${fmt(t.o)}</span> &nbsp; net <b class="${cls(t.n)}">${fmt(t.n)}</b></span></div><div class="chain">${ev.map(e=>`<div>${e.d||'-'} &nbsp; ${e.t}</div>`).join('')}</div></div>`;
+ }).join(''):'<p class="muted">No accounts yet. Add one above.</p>';
 
  /* money spent */
  const kindSum=k=>sum(money.filter(m=>m.kind===k).map(m=>m.amt));
@@ -478,7 +579,7 @@ function fillAcctSelects(){
  $('mOther').textContent=fmt(kindSum('activation')+kindSum('sub')+kindSum('data'));
  const sf=groupBy(money,m=>m.firm);
  $('tSpentFirm').innerHTML='<tr><th>Firm</th><th>Entries</th><th>Spent</th></tr>'+Object.keys(sf).map(f=>`<tr><td><b>${f}</b></td><td>${sf[f].length}</td><td class="neg">${fmt(sum(sf[f].map(m=>m.amt)))}</td></tr>`).join('');
- $('tMoney').innerHTML='<tr><th>Date</th><th>Kind</th><th>Firm</th><th>Type</th><th>Size</th><th>Account</th><th>Amount</th><th></th></tr>'+[...money].sort((a,b)=>b.date.localeCompare(a.date)).map(m=>{const a=acctById(m.acct);return `<tr><td>${m.date}</td><td>${KINDS[m.kind]||m.kind}</td><td>${m.firm}</td><td>${m.type}</td><td>${m.size||''}</td><td>${a?a.name:''}</td><td class="neg">${fmt(m.amt)}</td><td><button class="x" onclick="delItem('m',${m.id})">✕</button></td></tr>`}).join('');
+ $('tMoney').innerHTML='<tr><th>Date</th><th>Paid for</th><th>Account</th><th>Firm</th><th>Type</th><th>Size</th><th>Cost</th><th></th></tr>'+[...money].sort((a,b)=>b.date.localeCompare(a.date)).map(m=>{const a=acctById(m.acct);return `<tr><td>${m.date}</td><td>${KINDS[m.kind]||m.kind}</td><td>${a?a.name:'-'}</td><td>${m.firm}</td><td>${m.type}</td><td>${m.size||''}</td><td class="neg">${fmt(m.amt)}</td><td><button class="x" onclick="delItem('m',${m.id})">✕</button></td></tr>`}).join('');
 
  /* payouts */
  $('pTotal').textContent=fmt(out);$('pCount').textContent=payouts.length;
@@ -486,10 +587,10 @@ function fillAcctSelects(){
  $('pMax').textContent=fmt(payouts.length?Math.max(...payouts.map(p=>p.amt)):0);
  const pf=groupBy(payouts,p=>p.firm);
  $('tPayFirm').innerHTML='<tr><th>Firm</th><th>Payouts</th><th>Withdrawn</th></tr>'+Object.keys(pf).map(f=>`<tr><td><b>${f}</b></td><td>${pf[f].length}</td><td class="pos">${fmt(sum(pf[f].map(p=>p.amt)))}</td></tr>`).join('');
- $('tPay').innerHTML='<tr><th>Date</th><th>Firm</th><th>Type</th><th>Size</th><th>Account</th><th>Amount</th><th></th></tr>'+[...payouts].sort((a,b)=>b.date.localeCompare(a.date)).map(p=>{const a=acctById(p.acct);return `<tr><td>${p.date}</td><td>${p.firm}</td><td>${p.type}</td><td>${p.size||''}</td><td>${a?a.name:''}</td><td class="pos">${fmt(p.amt)}</td><td><button class="x" onclick="delItem('p',${p.id})">✕</button></td></tr>`}).join('');
+ $('tPay').innerHTML='<tr><th>Date</th><th>Account</th><th>Firm</th><th>Type</th><th>Size</th><th>Amount</th><th></th></tr>'+[...payouts].sort((a,b)=>b.date.localeCompare(a.date)).map(p=>{const a=acctById(p.acct);return `<tr><td>${p.date}</td><td>${a?a.name:'-'}</td><td>${p.firm}</td><td>${p.type}</td><td>${p.size||''}</td><td class="pos">${fmt(p.amt)}</td><td><button class="x" onclick="delItem('p',${p.id})">✕</button></td></tr>`}).join('');
 
  /* journal */
- $('tJ').innerHTML='<tr><th>Date</th><th>Firm</th><th>Size</th><th>Account</th><th>P&L</th><th>Mood</th><th>Rules</th><th>Disc</th><th>Notes</th><th></th></tr>'+[...journal].sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id).map(j=>{const a=acctById(j.acct);return `<tr><td>${j.date}</td><td>${j.firm}</td><td>${j.size||''}</td><td>${a?a.name:''}</td><td class="${cls(j.pnl)}">${fmt(j.pnl)}</td><td>${(j.mood||'').split(' ')[0]}</td><td>${j.rules}</td><td>${j.disc||''}</td><td>${j.notes}</td><td><button class="x" onclick="delItem('j',${j.id})">✕</button></td></tr>`}).join('');
+ $('tJ').innerHTML='<tr><th>Date</th><th>Account</th><th>Firm</th><th>Size</th><th>P&L</th><th>Mood</th><th>Rules</th><th>Disc</th><th>Notes</th><th></th></tr>'+[...journal].sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id).map(j=>{const a=acctById(j.acct);return `<tr><td>${j.date}</td><td>${a?a.name:'-'}</td><td>${j.firm}</td><td>${j.size||''}</td><td class="${cls(j.pnl)}">${fmt(j.pnl)}</td><td>${(j.mood||'').split(' ')[0]}</td><td>${j.rules}</td><td>${j.disc||''}</td><td>${j.notes}</td><td><button class="x" onclick="delItem('j',${j.id})">✕</button></td></tr>`}).join('');
 
  /* stats */
  const dv=Object.values(days),w=dv.filter(v=>v>0),l=dv.filter(v=>v<0);
@@ -507,10 +608,11 @@ function fillAcctSelects(){
  $('tPnlMood').innerHTML='<tr><th>Mood</th><th>Days</th><th>Avg P&L</th></tr>'+Object.keys(jm).map(m=>{const t=sum(jm[m].map(j=>j.pnl))/jm[m].length;return `<tr><td>${m}</td><td>${jm[m].length}</td><td class="${cls(t)}">${fmt(t)}</td></tr>`}).join('');
  $('tPass').innerHTML='<tr><th>Firm</th><th>Passed</th><th>Failed</th><th>Pass rate</th></tr>'+Object.keys(byF).map(f=>{const l2=byF[f];const p=l2.filter(a=>a.stage==='funded'||a.stage==='live').length,fl=l2.filter(a=>a.stage==='failed').length;return `<tr><td><b>${f}</b></td><td>${p}</td><td>${fl}</td><td>${pct(p,p+fl)}</td></tr>`}).join('');
 
- renderAnalytics(spent,out);
+ renderAnalytics(spent,out,acctTot);
+ renderCharts();
 }
 
-function renderAnalytics(spent,out){
+function renderAnalytics(spent,out,acctTot){
  const net=out-spent;
  const passed=accts.filter(a=>a.stage==='funded'||a.stage==='live').length;
  const failed=accts.filter(a=>a.stage==='failed').length;
@@ -534,20 +636,18 @@ function renderAnalytics(spent,out){
  $('cPer').textContent=spent?(out/spent).toFixed(2):'-';
 
  /* per account */
- const rows=accts.map(a=>{
-  const s=sum(money.filter(m=>String(m.acct)===String(a.id)).map(m=>m.amt));
-  const o=sum(payouts.filter(p=>String(p.acct)===String(a.id)).map(p=>p.amt));
-  const t=sum(journal.filter(j=>String(j.acct)===String(a.id)).map(j=>j.pnl));
-  return {a,s,o,n:o-s,t};
- });
- $('tAcctMath').innerHTML='<tr><th>Firm</th><th>Type</th><th>Size</th><th>Name</th><th>Stage</th><th>Spent</th><th>Payouts</th><th>Net</th><th>Return</th><th>Logged P&L</th></tr>'+rows.map(r=>`<tr><td>${r.a.firm}</td><td>${r.a.type}</td><td>${r.a.size}</td><td>${r.a.name}</td><td>${r.a.stage}</td><td class="neg">${fmt(r.s)}</td><td class="pos">${fmt(r.o)}</td><td class="${cls(r.n)}">${fmt(r.n)}</td><td class="${cls(r.n)}">${r.s?Math.round(r.n/r.s*100)+'%':'-'}</td><td class="${cls(r.t)}">${fmt(r.t)}</td></tr>`).join('');
+ $('tAcctMath').innerHTML='<tr><th>Name</th><th>Firm</th><th>Type</th><th>Size</th><th>Stage</th><th>Spent</th><th>Payouts</th><th>Net</th><th>Return</th><th>Logged P&L</th></tr>'+accts.map(a=>{
+  const t=acctTot(a);
+  return `<tr><td><b>${a.name}</b></td><td>${a.firm}</td><td>${a.type}</td><td>${a.size}</td><td>${STAGES[a.stage]}</td><td class="neg">${fmt(t.s)}</td><td class="pos">${fmt(t.o)}</td><td class="${cls(t.n)}">${fmt(t.n)}</td><td class="${cls(t.n)}">${t.s?Math.round(t.n/t.s*100)+'%':'-'}</td><td class="${cls(t.t)}">${fmt(t.t)}</td></tr>`;
+ }).join('');
 
  /* group tables */
  const groupMath=(keyFn)=>{
   const keys={};
-  accts.forEach(a=>{const k=keyFn(a);keys[k]=keys[k]||{n:0,pass:0,fail:0,s:0,o:0}; keys[k].n++; if(a.stage==='funded'||a.stage==='live')keys[k].pass++; if(a.stage==='failed')keys[k].fail++});
-  money.forEach(m=>{const k=keyFn(m);keys[k]=keys[k]||{n:0,pass:0,fail:0,s:0,o:0};keys[k].s+=m.amt});
-  payouts.forEach(p=>{const k=keyFn(p);keys[k]=keys[k]||{n:0,pass:0,fail:0,s:0,o:0};keys[k].o+=p.amt});
+  const k0=()=>({n:0,pass:0,fail:0,s:0,o:0});
+  accts.forEach(a=>{const k=keyFn(a);keys[k]=keys[k]||k0();keys[k].n++;if(a.stage==='funded'||a.stage==='live')keys[k].pass++;if(a.stage==='failed')keys[k].fail++});
+  money.forEach(m=>{const k=keyFn(m);keys[k]=keys[k]||k0();keys[k].s+=m.amt});
+  payouts.forEach(p=>{const k=keyFn(p);keys[k]=keys[k]||k0();keys[k].o+=p.amt});
   return '<tr><th>Group</th><th>Accts</th><th>Pass rate</th><th>Spent</th><th>Payouts</th><th>Net</th><th>Return</th></tr>'+Object.entries(keys).map(([k,v])=>`<tr><td><b>${k}</b></td><td>${v.n}</td><td>${pct(v.pass,v.pass+v.fail)}</td><td class="neg">${fmt(v.s)}</td><td class="pos">${fmt(v.o)}</td><td class="${cls(v.o-v.s)}">${fmt(v.o-v.s)}</td><td class="${cls(v.o-v.s)}">${v.s?Math.round((v.o-v.s)/v.s*100)+'%':'-'}</td></tr>`).join('');
  };
  $('tFirmMath').innerHTML=groupMath(x=>x.firm);
@@ -560,9 +660,10 @@ function renderAnalytics(spent,out){
 
  /* monthly */
  const mm={};
- money.forEach(m=>{const k=(m.date||'').slice(0,7);if(!k)return;mm[k]=mm[k]||{s:0,o:0,t:0};mm[k].s+=m.amt});
- payouts.forEach(p=>{const k=(p.date||'').slice(0,7);if(!k)return;mm[k]=mm[k]||{s:0,o:0,t:0};mm[k].o+=p.amt});
- journal.forEach(j=>{const k=(j.date||'').slice(0,7);if(!k)return;mm[k]=mm[k]||{s:0,o:0,t:0};mm[k].t+=j.pnl});
+ const mk=()=>({s:0,o:0,t:0});
+ money.forEach(m=>{const k=(m.date||'').slice(0,7);if(!k)return;mm[k]=mm[k]||mk();mm[k].s+=m.amt});
+ payouts.forEach(p=>{const k=(p.date||'').slice(0,7);if(!k)return;mm[k]=mm[k]||mk();mm[k].o+=p.amt});
+ journal.forEach(j=>{const k=(j.date||'').slice(0,7);if(!k)return;mm[k]=mm[k]||mk();mm[k].t+=j.pnl});
  $('tMonthly').innerHTML='<tr><th>Month</th><th>Spent</th><th>Payouts</th><th>Net</th><th>Logged P&L</th></tr>'+Object.keys(mm).sort().reverse().map(k=>{const v=mm[k];return `<tr><td><b>${k}</b></td><td class="neg">${fmt(v.s)}</td><td class="pos">${fmt(v.o)}</td><td class="${cls(v.o-v.s)}">${fmt(v.o-v.s)}</td><td class="${cls(v.t)}">${fmt(v.t)}</td></tr>`}).join('');
 
  /* funding math */
@@ -583,22 +684,24 @@ function renderAnalytics(spent,out){
  $('fEv').textContent=ev!==null?fmt(ev):'-';
  if(ev!==null)$('fEv').className='value '+cls(ev);
  const fk={};
- accts.forEach(a=>{const k=a.firm+' '+a.type;fk[k]=fk[k]||{n:0,pass:0,fail:0,fee:0,o:0};fk[k].n++;if(a.stage==='funded'||a.stage==='live')fk[k].pass++;if(a.stage==='failed')fk[k].fail++});
- money.filter(m=>m.kind==='buy'||m.kind==='reset').forEach(m=>{const k=m.firm+' '+m.type;fk[k]=fk[k]||{n:0,pass:0,fail:0,fee:0,o:0};fk[k].fee+=m.amt});
- payouts.forEach(p=>{const k=p.firm+' '+p.type;fk[k]=fk[k]||{n:0,pass:0,fail:0,fee:0,o:0};fk[k].o+=p.amt});
+ const f0=()=>({n:0,pass:0,fail:0,fee:0,o:0});
+ accts.forEach(a=>{const k=a.firm+' '+a.type;fk[k]=fk[k]||f0();fk[k].n++;if(a.stage==='funded'||a.stage==='live')fk[k].pass++;if(a.stage==='failed')fk[k].fail++});
+ buys.forEach(m=>{const k=m.firm+' '+m.type;fk[k]=fk[k]||f0();fk[k].fee+=m.amt});
+ payouts.forEach(p=>{const k=p.firm+' '+p.type;fk[k]=fk[k]||f0();fk[k].o+=p.amt});
  $('tFundMath').innerHTML='<tr><th>Firm and type</th><th>Accts</th><th>Pass rate</th><th>Avg fee</th><th>Expected cost per funded</th><th>Payout per funded</th><th>Break-even pass rate</th></tr>'+Object.entries(fk).map(([k,v])=>{const af=v.n?v.fee/v.n:0;const pr=(v.pass+v.fail)?v.pass/(v.pass+v.fail):null;const ppf=v.pass?v.o/v.pass:null;return `<tr><td><b>${k}</b></td><td>${v.n}</td><td>${pr!==null?Math.round(pr*100)+'%':'-'}</td><td class="neg">${fmt(af)}</td><td class="neg">${pr?fmt(af/pr):'-'}</td><td class="pos">${ppf!==null?fmt(ppf):'-'}</td><td>${ppf?Math.round(af/ppf*100)+'%':'-'}</td></tr>`}).join('');
 
  /* unlinked */
  const um=money.filter(m=>!acctById(m.acct)).length,up=payouts.filter(p=>!acctById(p.acct)).length;
- $('unlinkedNote').textContent=(um+up)?`${um} purchase(s) and ${up} payout(s) are not linked to a specific account. They still count in the consolidated numbers and by firm, but not in the per account table.`:'Every purchase and payout is linked to an account.';
+ $('unlinkedNote').textContent=(um+up)?`${um} cost(s) and ${up} payout(s) are not linked to a specific account. They still count in the consolidated numbers and by firm, but not in the per account table.`:'Every cost and payout is linked to an account.';
 }
+
 /* ===== CHARTS (plain SVG, nothing to install) ===== */
-const GREEN='#3ddc97',RED='#ff6b81',GOLD='#ffc857',WHITE='#f2f2f2',GREY='#8a8a8a',LINE='#222222';
+const GREEN='#3ddc97',RED='#ff6b81',GOLD='#ffc857',WHITE='#f2f2f2',GREY='#8d9a94',LINE='#1f2a25';
 const short=n=>{const a=Math.abs(n);const s=a>=1000?(a/1000).toFixed(a>=10000?0:1)+'k':Math.round(a)+'';return (n<0?'-$':'$')+s};
 const empty=t=>`<p class="muted">${t}</p>`;
 
 function lineChart(el,pts){
- if(pts.length<2)return empty('Add a few entries with dates and the line will appear.');
+ if(pts.length<2){el.innerHTML=empty('Add a few entries with dates and the line will appear.');return}
  const W=640,H=240,P={l:52,r:12,t:12,b:26};
  const vals=pts.map(p=>p.v),mn=Math.min(0,...vals),mx=Math.max(0,...vals),rg=(mx-mn)||1;
  const x=i=>P.l+i*(W-P.l-P.r)/(pts.length-1),y=v=>P.t+(mx-v)*(H-P.t-P.b)/rg;
@@ -614,7 +717,7 @@ function lineChart(el,pts){
 
 function barChart(el,items,opt){
  opt=opt||{};
- if(!items.length)return el.innerHTML=empty('No data yet.');
+ if(!items.length){el.innerHTML=empty('No data yet.');return}
  const W=640,H=240,P={l:52,r:12,t:12,b:44};
  const all=items.flatMap(i=>i.vals.map(v=>v.v)),mn=Math.min(0,...all),mx=Math.max(0,...all),rg=(mx-mn)||1;
  const y=v=>P.t+(mx-v)*(H-P.t-P.b)/rg,gw=(W-P.l-P.r)/items.length;
@@ -635,7 +738,7 @@ function barChart(el,items,opt){
 
 function donut(el,items){
  items=items.filter(i=>i.v>0);
- if(!items.length)return el.innerHTML=empty('No data yet.');
+ if(!items.length){el.innerHTML=empty('No data yet.');return}
  const tot=sum(items.map(i=>i.v)),R=70,r=44,cx=90,cy=90;let a0=-Math.PI/2,g='';
  items.forEach(it=>{
   const a1=a0+it.v/tot*Math.PI*2,big=a1-a0>Math.PI?1:0;
@@ -645,7 +748,7 @@ function donut(el,items){
   a0=a1;
  });
  const leg=items.map(i=>`<div style="display:flex;align-items:center;gap:8px;font-size:12px;margin:5px 0"><i style="width:10px;height:10px;border-radius:3px;background:${i.c};display:inline-block"></i>${i.label}: <b>${i.fmt||i.v}</b> (${Math.round(i.v/tot*100)}%)</div>`).join('');
- el.innerHTML=`<div style="display:flex;gap:18px;align-items:center;flex-wrap:wrap"><svg viewBox="0 0 180 180" width="170">${g}<text x="90" y="95" fill="${WHITE}" font-size="15" font-weight="700" text-anchor="middle">${items.length>0?(items[0].total||tot):tot}</text></svg><div>${leg}</div></div>`;
+ el.innerHTML=`<div style="display:flex;gap:18px;align-items:center;flex-wrap:wrap"><svg viewBox="0 0 180 180" width="170">${g}<text x="90" y="95" fill="${WHITE}" font-size="15" font-weight="700" text-anchor="middle">${items[0].total||tot}</text></svg><div>${leg}</div></div>`;
 }
 
 function renderCharts(){
@@ -678,7 +781,8 @@ function renderCharts(){
 
  /* 6 costs donut */
  const cc=groupBy(money,m=>m.kind),pal=[RED,GOLD,'#5ec8ff','#b48cff','#ff9f68'];
- donut($('chCost'),Object.keys(cc).map((k,i)=>({label:KINDS[k]||k,v:sum(cc[k].map(m=>m.amt)),c:pal[i%pal.length],fmt:fmt(sum(cc[k].map(m=>m.amt))),total:short(sum(money.map(m=>m.amt)))})));
+ const totCost=short(sum(money.map(m=>m.amt)));
+ donut($('chCost'),Object.keys(cc).map((k,i)=>({label:KINDS[k]||k,v:sum(cc[k].map(m=>m.amt)),c:pal[i%pal.length],fmt:fmt(sum(cc[k].map(m=>m.amt))),total:totCost})));
 
  /* 7 stages donut */
  const st=[['eval','Evaluation',GOLD],['funded','Funded',GREEN],['live','Live','#5ec8ff'],['failed','Failed',RED]];
@@ -686,11 +790,9 @@ function renderCharts(){
 
  /* 8 mood */
  const mo=groupBy(journal.filter(j=>j.mood),j=>j.mood);
- barChart($('chMood'),Object.keys(mo).map(m=>({label:m.split(' ')[0]+' '+(m.split(' ')[1]||''),vals:[{v:sum(mo[m].map(j=>j.pnl))/mo[m].length}]})),{legend:'<p class="muted">Average P&L on days you felt each way</p>'});
+ barChart($('chMood'),Object.keys(mo).map(m=>({label:m,vals:[{v:sum(mo[m].map(j=>j.pnl))/mo[m].length}]})),{legend:'<p class="muted">Average P&L on days you felt each way</p>'});
 }
 
-const _renderBase=render;
-render=function(){_renderBase();renderCharts()};
 render();
 </script>
 </body>

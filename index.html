@@ -9,11 +9,11 @@
 <title>Prop Desk</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;900&display=swap" rel="stylesheet">
 <style>
 :root{--panel:rgba(9,13,12,.8);--panel2:rgba(20,27,24,.92);--line:#1c2924;--line2:#2c4038;--text:#f2f5f3;--muted:#8d9a94;--green:#3ddc97;--red:#ff6b81;--gold:#ffc857;--blue:#5ec8ff;--violet:#b48cff}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0;font-family:'Merriweather',Georgia,serif;background:#000;color:var(--text);min-height:100vh}
+body{margin:0;font-family:'DM Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-variant-numeric:tabular-nums;background:#000;color:var(--text);min-height:100vh}
 
 /* animated candlestick background */
 #bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;background:radial-gradient(1100px 650px at 82% -5%,rgba(61,220,151,.2),transparent 62%),radial-gradient(1000px 700px at 0% 105%,rgba(255,107,129,.17),transparent 62%),radial-gradient(700px 500px at 50% 50%,rgba(94,200,255,.06),transparent 70%),linear-gradient(180deg,#02060b 0%,#000 100%)}
@@ -108,11 +108,21 @@ td input,td select{padding:7px;font-size:12px;min-width:90px}
 .feed>div{padding:9px 0;border-bottom:1px solid var(--line);font-size:12px;display:flex;justify-content:space-between;gap:10px}
 .pill{display:inline-block;padding:2px 9px;border-radius:99px;font-size:10px;font-weight:700;border:1px solid var(--line);background:var(--panel2)}
 .pill.eval{color:var(--gold)}.pill.funded{color:var(--green)}.pill.live{color:var(--blue)}.pill.failed{color:var(--red)}
+.pill.evalfail{color:var(--red)}.pill.fundedfail{color:#ff9f68}
+/* account path (flowchart) */
+.flow{display:flex;align-items:center;flex-wrap:wrap;gap:4px}
+.nd{display:inline-block;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700;border:1px solid var(--line2);background:var(--panel2);color:var(--muted);white-space:nowrap}
+.nd.g{color:var(--green);border-color:rgba(61,220,151,.5)}
+.nd.r{color:var(--red);border-color:rgba(255,107,129,.55)}
+.nd.o{color:#ff9f68;border-color:rgba(255,159,104,.55)}
+.nd.y{color:var(--gold);border-color:rgba(255,200,87,.5)}
+.nd.cur{box-shadow:0 0 0 2px rgba(255,255,255,.28)}
+.ar{color:var(--muted);font-size:12px}
 @media(max-width:760px){
  .layout{flex-direction:column}
  .side{width:100%;height:auto;position:sticky;top:0;z-index:5;flex-direction:row;flex-wrap:wrap;align-items:center;padding:10px;border-right:none;border-bottom:1px solid var(--line);gap:4px;overflow-y:visible}
  .logo{width:100%;margin:0 4px}
- .brand{font-size:22px}
+ .brand{font-size:24px}
  .owner{width:100%}
  .sub,.mkt,.side .spacer{display:none}
  .tab{width:auto;flex:1;min-width:84px;justify-content:center;padding:9px 6px;font-size:12px}
@@ -158,8 +168,6 @@ td input,td select{padding:7px;font-size:12px;min-width:90px}
 
 
 
-
-
  <!-- DASHBOARD -->
 <div class="page active" id="p-dash">
   <div class="hero">
@@ -180,7 +188,8 @@ td input,td select{padding:7px;font-size:12px;min-width:90px}
     <div class="card"><div class="label">Eval Accounts</div><div class="value gold" id="kEval">0</div></div>
     <div class="card"><div class="label">Funded Accounts</div><div class="value pos" id="kFunded">0</div></div>
     <div class="card"><div class="label">Live Accounts</div><div class="value" id="kLive" style="color:var(--blue)">0</div></div>
-    <div class="card"><div class="label">Failed / Blown</div><div class="value neg" id="kFailed">0</div></div>
+    <div class="card"><div class="label">Blown in Eval</div><div class="value neg" id="kEvalFail">0</div></div>
+    <div class="card"><div class="label">Blown After Passing</div><div class="value" id="kFundedFail" style="color:#ff9f68">0</div></div>
   </div>
   <div class="row2">
     <div class="card"><h2>Equity curve (after everything)</h2><div id="dEquity"></div></div>
@@ -198,7 +207,7 @@ td input,td select{padding:7px;font-size:12px;min-width:90px}
 
 <!-- ACCOUNTS -->
 <div class="page" id="p-accts">
-  <div class="ptitle"><h1>Accounts</h1><p>Every account you bought, from evaluation to funded. Costs and payouts link to it from the other tabs.</p></div>
+  <div class="ptitle"><h1>Accounts</h1><p>Every account you bought and where it ended: still in evaluation, blown in evaluation, or passed and then funded, paid out or blown.</p></div>
   <div class="card" style="margin-bottom:16px">
     <h2>Add Account</h2>
     <p class="muted" style="margin:0 0 10px">Only account details go here. What you paid goes on the Money Spent tab, where you pick this account.</p>
@@ -206,7 +215,7 @@ td input,td select{padding:7px;font-size:12px;min-width:90px}
       <div><label class="f">Firm</label><select id="aFirm"></select></div>
       <div><label class="f">Account type</label><select id="aType"></select></div>
       <div><label class="f">Size</label><select id="aSize"></select></div>
-      <div><label class="f">Stage</label><select id="aStage"><option value="eval">Evaluation</option><option value="funded">Funded</option><option value="live">Live</option><option value="failed">Failed / Blown</option></select></div>
+      <div><label class="f">Outcome (where it is now)</label><select id="aStage"><option value="eval">In evaluation</option><option value="evalfail">Blown in evaluation</option><option value="funded">Passed, funded now</option><option value="live">Passed, live now</option><option value="fundedfail">Passed, then blown at funded</option></select></div>
       <div><label class="f">Nickname or ID</label><input id="aName" placeholder="e.g. FTMO Pro 50K-01"></div>
       <div><label class="f">Start date</label><input type="date" id="aDate"></div>
       <button class="btn" type="submit">Add Account</button>
@@ -214,7 +223,8 @@ td input,td select{padding:7px;font-size:12px;min-width:90px}
   </div>
   <div class="card" style="margin-bottom:16px">
     <h2>Account Map</h2>
-    <p class="muted" style="margin:0 0 10px">One row per account you bought. Change the stage when it passes or fails, and rename it for its new life (for example FTMO Pro 50K-01 becomes FTMO Pro 50K-01 Funded). Spent, payouts and net come from the other tabs.</p>
+    <p class="muted" style="margin:0 0 10px">One row per account you bought. Change the outcome as its story moves on: in evaluation, then passed and funded, then blown at funded. You can also rename it for its new life (for example FTMO Pro 50K-01 becomes FTMO Pro 50K-01 Funded). The path column draws the journey for you, and payouts appear on it by themselves when you pick the account on the Payouts tab.</p>
+    <p class="muted" style="margin:0 0 10px">How it counts: pass rate = accounts that ever passed divided by (ever passed + blown in evaluation). An account that passed and later blew at funded still counts as a pass, and it also shows separately as blown after passing.</p>
     <div class="scroll"><table id="tAccts"></table></div>
   </div>
   <div class="card"><h2>Account History</h2><p class="muted" style="margin:0 0 10px">The full chain for each account: every name, every stage change, every cost and every payout.</p><div id="acctHistory"></div></div>
@@ -281,7 +291,7 @@ td input,td select{padding:7px;font-size:12px;min-width:90px}
 
 <!-- SPENDS AND WITHDRAWALS (personal) -->
 <div class="page" id="p-personal">
-  <div class="ptitle"><h1>Spends &amp; Withdrawals</h1><p>Money you take out for life. Everything here is subtracted from True Net Profit.</p></div>
+  <div class="ptitle"><h1>Spends & Withdrawals</h1><p>Money you take out for life. Everything here is subtracted from True Net Profit.</p></div>
   <div class="grid">
     <div class="card"><div class="label">Total Withdrawn</div><div class="value gold" id="xTotal">$0</div></div>
     <div class="card"><div class="label">This Month</div><div class="value gold" id="xMonth">$0</div></div>
@@ -333,7 +343,9 @@ td input,td select{padding:7px;font-size:12px;min-width:90px}
   <div class="grid">
     <div class="card"><div class="label">Accounts Tracked</div><div class="value" id="sAccts">0</div></div>
     <div class="card"><div class="label">Active Accounts</div><div class="value gold" id="sActive">0</div></div>
-    <div class="card"><div class="label">Pass Rate</div><div class="value pos" id="sPass">-</div></div>
+    <div class="card"><div class="label">Pass Rate (ever passed)</div><div class="value pos" id="sPass">-</div></div>
+    <div class="card"><div class="label">Blown After Passing</div><div class="value" id="sBlownF" style="color:#ff9f68">0</div></div>
+    <div class="card"><div class="label">Passed Accounts That Paid Out</div><div class="value gold" id="sPayRate">-</div></div>
     <div class="card"><div class="label">Cost per Funded Account</div><div class="value neg" id="sCpp">-</div></div>
     <div class="card"><div class="label">Average Payout</div><div class="value pos" id="sAvgPay">$0</div></div>
     <div class="card"><div class="label">Largest Payout</div><div class="value pos" id="sBestPay">$0</div></div>
@@ -373,8 +385,9 @@ td input,td select{padding:7px;font-size:12px;min-width:90px}
       <div><div class="label">True Net Profit</div><div class="value" id="cNet">$0</div></div>
       <div><div class="label">Return on Spend</div><div class="value gold" id="cRoi">0%</div></div>
       <div><div class="label">Accounts Bought</div><div class="value" id="cBought">0</div></div>
-      <div><div class="label">Accounts Passed</div><div class="value pos" id="cPassed">0</div></div>
-      <div><div class="label">Accounts Failed</div><div class="value neg" id="cFailed">0</div></div>
+      <div><div class="label">Accounts Ever Passed</div><div class="value pos" id="cPassed">0</div></div>
+      <div><div class="label">Blown in Eval</div><div class="value neg" id="cFailed">0</div></div>
+      <div><div class="label">Blown After Passing</div><div class="value" id="cFundedFail" style="color:#ff9f68">0</div></div>
       <div><div class="label">Pass Rate</div><div class="value gold" id="cPass">0%</div></div>
       <div><div class="label">Cost per Pass</div><div class="value" id="cCpp">$0</div></div>
       <div><div class="label">Avg Payout</div><div class="value pos" id="cAvgPay">$0</div></div>
@@ -431,7 +444,7 @@ td input,td select{padding:7px;font-size:12px;min-width:90px}
   </div>
   <div class="row2">
     <div class="card"><h2>Where the trading money goes</h2><div id="chCost"></div></div>
-    <div class="card"><h2>Account stages</h2><div id="chStage"></div></div>
+    <div class="card"><h2>Where your accounts ended up</h2><div id="chStage"></div></div>
   </div>
   <div class="row2">
     <div class="card"><h2>Withdrawals by category</h2><div id="chWith"></div></div>
@@ -440,6 +453,7 @@ td input,td select{padding:7px;font-size:12px;min-width:90px}
 </div>
 </main>
 </div>
+
 
 
 
@@ -467,9 +481,13 @@ const PRICES={'FTMO Futures':{Growth:{'50K':[119,109],'100K':[169,159],'150K':[2
 const MOODS=['😎 Calm','😬 Anxious','😡 Tilted','🤑 Greedy','😴 Bored','🔥 Locked in'];
 const KINDS={buy:'Eval purchase',reset:'Reset',activation:'Activation fee',sub:'Monthly subscription',data:'Data / platform fee'};
 const STAGES={eval:'Evaluation',funded:'Funded',live:'Live',failed:'Failed / Blown'};
+/* each account has an outcome: where it is now, and whether it ever passed */
+const OUTCOMES={eval:'In evaluation',evalfail:'Blown in evaluation',funded:'Passed, funded now',live:'Passed, live now',fundedfail:'Passed, then blown at funded'};
+const OUT_STAGE={eval:['eval',false],evalfail:['failed',false],funded:['funded',true],live:['live',true],fundedfail:['failed',true]};
+const outKey=a=>a.stage==='failed'?(a.passed?'fundedfail':'evalfail'):a.stage;
 const CATS={cc:'Credit card',bills:'Monthly bills',rent:'Rent',loans:'Loans',india:'Sent to India',other:'Other'};
 const $=id=>document.getElementById(id);
-const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const esc=s=>{const d=document.createElement('div');d.textContent=s==null?'':String(s);return d.innerHTML.replace(/"/g,String.fromCharCode(38)+'quot;')};
 const load=k=>{try{return JSON.parse(localStorage.getItem(k)||'[]')}catch(e){return []}};
 /* same storage keys as every earlier version, so nothing you entered is lost */
 let accts=load('pd_accts'),money=load('pd_money'),journal=load('pd_journal'),payouts=load('pd_payouts'),personal=load('pd_personal');
@@ -477,6 +495,15 @@ function migrate(){
  const op=money.filter(m=>m.kind==='payout');
  if(op.length){payouts=payouts.concat(op);money=money.filter(m=>m.kind!=='payout')}
  accts.forEach(a=>{if(!a.history)a.history=[{date:a.date||'',text:'Added as '+a.name+' ('+(STAGES[a.stage]||a.stage)+')'}]});
+ /* older accounts had one stage only. Work out if they ever passed, from their stage, their history and their payouts. You can correct any of them on the Accounts tab. */
+ accts.forEach(a=>{
+  if(typeof a.passed==='boolean')return;
+  if(a.stage==='funded'||a.stage==='live'){a.passed=true;return}
+  if(a.stage==='eval'){a.passed=false;return}
+  const hist=(a.history||[]).filter(h=>/^(Added as|Stage changed)/.test(h.text||'')).map(h=>h.text).join(' | ');
+  const hadPay=payouts.some(p=>String(p.acct)===String(a.id));
+  a.passed=/\((Funded|Live)\)|to (Funded|Live)\b/.test(hist)||hadPay;
+ });
 }
 migrate();
 let selMood='';
@@ -551,7 +578,8 @@ priceHint();
 $('fAcct').onsubmit=e=>{
  e.preventDefault();
  const name=$('aName').value||'Unnamed';
- accts.push({id:Date.now(),firm:$('aFirm').value,type:$('aType').value,size:$('aSize').value,stage:$('aStage').value,name,date:$('aDate').value,history:[{date:$('aDate').value,text:'Added as '+name+' ('+STAGES[$('aStage').value]+')'}]});
+ const key=$('aStage').value,os=OUT_STAGE[key];
+ accts.push({id:Date.now(),firm:$('aFirm').value,type:$('aType').value,size:$('aSize').value,stage:os[0],passed:os[1],name,date:$('aDate').value,history:[{date:$('aDate').value,text:'Added as '+name+' ('+OUTCOMES[key]+')'}]});
  $('aName').value='';
  saveAll();
 };
@@ -598,10 +626,11 @@ autofill('pAcct','pFirm','pType','pSize');
 autofill('jAcct','jFirm',null,'jSize');
 
 /* account map actions */
-function setStage(id,s){
- const a=acctById(id);if(!a||a.stage===s)return;
- const old=a.stage;a.stage=s;
- a.history.push({date:todayS,text:'Stage changed from '+STAGES[old]+' to '+STAGES[s]});
+function setOutcome(id,key){
+ const a=acctById(id);if(!a||!OUT_STAGE[key])return;
+ const old=outKey(a);if(old===key)return;
+ a.stage=OUT_STAGE[key][0];a.passed=OUT_STAGE[key][1];
+ a.history.push({date:todayS,text:'Outcome changed from '+OUTCOMES[old]+' to '+OUTCOMES[key]});
  saveAll();
 }
 function renameAcct(id,name){
@@ -706,14 +735,31 @@ tick();setInterval(tick,1000);
 
 
 
-
   /* ===== SHARED HELPERS ===== */
 const GREEN='#3ddc97',RED='#ff6b81',GOLD='#ffc857',BLUE='#5ec8ff',VIOLET='#b48cff',WHITE='#f2f5f3',GREY='#8d9a94',LINE='#1c2924';
 const short=n=>{const a=Math.abs(n);const s=a>=1000?(a/1000).toFixed(a>=10000?0:1)+'k':Math.round(a)+'';return (n<0?'-$':'$')+s};
 const empty=t=>`<p class="muted">${t}</p>`;
 const setM=(id,v)=>{$(id).textContent=fmt(v);$(id).className='value '+cls(v)};
-const passedN=()=>accts.filter(a=>a.stage==='funded'||a.stage==='live').length;
-const failedN=()=>accts.filter(a=>a.stage==='failed').length;
+const passedN=()=>accts.filter(a=>a.passed).length;
+const evalFailN=()=>accts.filter(a=>a.stage==='failed'&&!a.passed).length;
+const fundedFailN=()=>accts.filter(a=>a.stage==='failed'&&a.passed).length;
+const failedN=evalFailN;
+const nowFundedN=()=>accts.filter(a=>a.stage==='funded'||a.stage==='live').length;
+const outCount=k=>accts.filter(a=>outKey(a)===k).length;
+const hasPay=a=>payouts.some(p=>String(p.acct)===String(a.id));
+/* the flowchart for one account: Bought, Evaluation, then where it went */
+function journeyHtml(a){
+ const k=outKey(a),pays=payouts.filter(p=>String(p.acct)===String(a.id));
+ const n=[['Bought','']];
+ if(k==='eval')n.push(['In evaluation','y']);
+ else if(k==='evalfail')n.push(['Evaluation','y'],['Blown in eval','r']);
+ else{
+  n.push(['Evaluation','y'],['Passed','g'],[k==='live'?'Live':'Funded','g']);
+  if(pays.length)n.push([pays.length+' payout'+(pays.length>1?'s':'')+' '+fmt(sum(pays.map(p=>p.amt))),'y']);
+  if(k==='fundedfail')n.push(['Blown at funded','o']);
+ }
+ return '<div class="flow">'+n.map((x,i)=>`<span class="nd ${x[1]} ${i===n.length-1?'cur':''}">${x[0]}</span>`).join('<span class="ar">→</span>')+'</div>';
+}
 
 /* spent = trading costs, out = payouts, wd = personal withdrawals. true net removes withdrawals. */
 function totals(){
@@ -737,13 +783,13 @@ function equityPts(){
 }
 function groupMath(keyFn){
  const keys={};
- const k0=()=>({n:0,pass:0,fail:0,s:0,o:0});
- accts.forEach(a=>{const k=keyFn(a);keys[k]=keys[k]||k0();keys[k].n++;if(a.stage==='funded'||a.stage==='live')keys[k].pass++;if(a.stage==='failed')keys[k].fail++});
+ const k0=()=>({n:0,pass:0,ef:0,ff:0,s:0,o:0});
+ accts.forEach(a=>{const k=keyFn(a);keys[k]=keys[k]||k0();keys[k].n++;if(a.passed)keys[k].pass++;if(a.stage==='failed'&&!a.passed)keys[k].ef++;if(a.stage==='failed'&&a.passed)keys[k].ff++});
  money.forEach(m=>{const k=keyFn(m);keys[k]=keys[k]||k0();keys[k].s+=m.amt});
  payouts.forEach(p=>{const k=keyFn(p);keys[k]=keys[k]||k0();keys[k].o+=p.amt});
  const rows=Object.entries(keys);
  if(!rows.length)return '<tr><td class="muted">Nothing here yet.</td></tr>';
- return '<tr><th>Group</th><th>Accts</th><th>Pass rate</th><th>Spent</th><th>Payouts</th><th>Net</th><th>Return</th></tr>'+rows.map(([k,v])=>`<tr><td><b>${esc(k)}</b></td><td>${v.n}</td><td>${pct(v.pass,v.pass+v.fail)}</td><td class="neg">${fmt(v.s)}</td><td class="pos">${fmt(v.o)}</td><td class="${cls(v.o-v.s)}">${fmt(v.o-v.s)}</td><td class="${cls(v.o-v.s)}">${v.s?Math.round((v.o-v.s)/v.s*100)+'%':'-'}</td></tr>`).join('');
+ return '<tr><th>Group</th><th>Accts</th><th>Passed</th><th>Pass rate</th><th>Blown after pass</th><th>Spent</th><th>Payouts</th><th>Net</th><th>Return</th></tr>'+rows.map(([k,v])=>`<tr><td><b>${esc(k)}</b></td><td>${v.n}</td><td>${v.pass}</td><td>${pct(v.pass,v.pass+v.ef)}</td><td>${v.ff}</td><td class="neg">${fmt(v.s)}</td><td class="pos">${fmt(v.o)}</td><td class="${cls(v.o-v.s)}">${fmt(v.o-v.s)}</td><td class="${cls(v.o-v.s)}">${v.s?Math.round((v.o-v.s)/v.s*100)+'%':'-'}</td></tr>`).join('');
 }
 
 /* ===== MAIN RENDER ===== */
@@ -766,15 +812,14 @@ function renderDashboard(T){
  const h=new Date().getHours();
  $('greet').textContent=(h<12?'Good morning':h<18?'Good afternoon':'Good evening')+', Soumik';
  const active=accts.filter(a=>a.stage!=='failed').length;
- $('greetSub').textContent=active+' active account'+(active===1?'':'s')+' · '+passedN()+' funded · '+fmt(T.wd)+' withdrawn';
+ $('greetSub').textContent=active+' active account'+(active===1?'':'s')+' · '+nowFundedN()+' funded now · '+passedN()+' ever passed · '+fmt(T.wd)+' withdrawn';
  $('heroNet').textContent=fmt(T.net);$('heroNet').className='big '+cls(T.net);
  setM('kToday',sum(journal.filter(j=>j.date===todayS).map(j=>j.pnl)));
  setM('kWeek',sum(journal.filter(j=>inRange(j.date,7)).map(j=>j.pnl)));
  setM('kMonth',sum(journal.filter(j=>inRange(j.date,30)).map(j=>j.pnl)));
  $('kPayouts').textContent=fmt(T.out);$('kSpent').textContent=fmt(T.spent);$('kWith').textContent=fmt(T.wd);
  setM('kTrade',T.trade);setM('kNet',T.net);
- const cnt=s=>accts.filter(a=>a.stage===s).length;
- $('kEval').textContent=cnt('eval');$('kFunded').textContent=cnt('funded');$('kLive').textContent=cnt('live');$('kFailed').textContent=cnt('failed');
+ $('kEval').textContent=outCount('eval');$('kFunded').textContent=outCount('funded');$('kLive').textContent=outCount('live');$('kEvalFail').textContent=outCount('evalfail');$('kFundedFail').textContent=outCount('fundedfail');
  lineChart($('dEquity'),equityPts());
 
  const ev=[];
@@ -786,7 +831,7 @@ function renderDashboard(T){
  $('feed').innerHTML=ev.length?ev.slice(0,9).map(e=>`<div><span class="${e.c}">${esc(e.t)}</span><span class="muted">${e.d}</span></div>`).join(''):'<p class="muted">Nothing yet. Add an account, then log a cost on Money Spent.</p>';
 
  const byF=groupBy(accts,a=>a.firm);
- $('tFirmAccts').innerHTML='<tr><th>Firm</th><th>Eval</th><th>Funded</th><th>Live</th><th>Failed</th></tr>'+Object.keys(FIRMS).map(f=>{const l=byF[f]||[];const c=s=>l.filter(a=>a.stage===s).length;return `<tr><td><b>${f}</b></td><td>${c('eval')}</td><td>${c('funded')}</td><td>${c('live')}</td><td>${c('failed')}</td></tr>`}).join('');
+ $('tFirmAccts').innerHTML='<tr><th>Firm</th><th>In eval</th><th>Funded</th><th>Live</th><th>Blown in eval</th><th>Blown after pass</th></tr>'+Object.keys(FIRMS).map(f=>{const l=byF[f]||[];const c=k=>l.filter(a=>outKey(a)===k).length;return `<tr><td><b>${f}</b></td><td>${c('eval')}</td><td>${c('funded')}</td><td>${c('live')}</td><td>${c('evalfail')}</td><td>${c('fundedfail')}</td></tr>`}).join('');
 
  const cdays=calByDate();
  const y=calDate.getFullYear(),mo=calDate.getMonth();
@@ -802,19 +847,19 @@ function renderDashboard(T){
 }
 
 function renderAccounts(){
- $('tAccts').innerHTML=accts.length?'<tr><th>Name (editable)</th><th>Firm</th><th>Type</th><th>Size</th><th>Stage</th><th>Spent</th><th>Payouts</th><th>Net</th><th></th></tr>'+[...accts].reverse().map(a=>{
-  const t=acctTot(a);
-  return `<tr><td><input value="${esc(a.name)}" onchange="renameAcct(${a.id},this.value)"></td><td>${a.firm}</td><td>${a.type}</td><td>${a.size}</td><td><select onchange="setStage(${a.id},this.value)">${Object.keys(STAGES).map(s=>`<option value="${s}" ${a.stage===s?'selected':''}>${STAGES[s]}</option>`).join('')}</select></td><td class="neg">${fmt(t.s)}</td><td class="pos">${fmt(t.o)}</td><td class="${cls(t.n)}">${fmt(t.n)}</td><td><button class="x" onclick="delItem('a',${a.id})">✕</button></td></tr>`;
+ $('tAccts').innerHTML=accts.length?'<tr><th>Name (editable)</th><th>Firm</th><th>Type</th><th>Size</th><th>Outcome</th><th>Path</th><th>Spent</th><th>Payouts</th><th>Net</th><th></th></tr>'+[...accts].reverse().map(a=>{
+  const t=acctTot(a),k=outKey(a);
+  return `<tr><td><input value="${esc(a.name)}" onchange="renameAcct(${a.id},this.value)"></td><td>${a.firm}</td><td>${a.type}</td><td>${a.size}</td><td><select onchange="setOutcome(${a.id},this.value)">${Object.keys(OUTCOMES).map(o=>`<option value="${o}" ${k===o?'selected':''}>${OUTCOMES[o]}</option>`).join('')}</select></td><td>${journeyHtml(a)}</td><td class="neg">${fmt(t.s)}</td><td class="pos">${fmt(t.o)}</td><td class="${cls(t.n)}">${fmt(t.n)}</td><td><button class="x" onclick="delItem('a',${a.id})">✕</button></td></tr>`;
  }).join(''):'<tr><td class="muted">No accounts yet. Add one above.</td></tr>';
 
  $('acctHistory').innerHTML=accts.length?[...accts].reverse().map(a=>{
-  const t=acctTot(a);
+  const t=acctTot(a),k=outKey(a);
   const ev=[];
   a.history.forEach(h=>ev.push({d:h.date||'',t:h.text}));
   money.filter(m=>String(m.acct)===String(a.id)).forEach(m=>ev.push({d:m.date||'',t:'Paid '+fmt(m.amt)+' for '+(KINDS[m.kind]||m.kind)}));
   payouts.filter(p=>String(p.acct)===String(a.id)).forEach(p=>ev.push({d:p.date||'',t:'Payout withdrawn '+fmt(p.amt)}));
   ev.sort((x,y2)=>x.d.localeCompare(y2.d));
-  return `<div class="card" style="margin-bottom:10px;background:var(--panel2)"><div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:8px"><b>${esc(a.name)}</b><span><span class="pill ${a.stage}">${STAGES[a.stage]}</span> &nbsp; spent <span class="neg">${fmt(t.s)}</span> &nbsp; payouts <span class="pos">${fmt(t.o)}</span> &nbsp; net <b class="${cls(t.n)}">${fmt(t.n)}</b></span></div><div class="chain">${ev.map(e=>`<div>${e.d||'-'} &nbsp; ${esc(e.t)}</div>`).join('')}</div></div>`;
+  return `<div class="card" style="margin-bottom:10px;background:var(--panel2)"><div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:8px"><b>${esc(a.name)}</b><span><span class="pill ${k}">${OUTCOMES[k]}</span> &nbsp; spent <span class="neg">${fmt(t.s)}</span> &nbsp; payouts <span class="pos">${fmt(t.o)}</span> &nbsp; net <b class="${cls(t.n)}">${fmt(t.n)}</b></span></div><div style="margin-bottom:10px">${journeyHtml(a)}</div><div class="chain">${ev.map(e=>`<div>${e.d||'-'} &nbsp; ${esc(e.t)}</div>`).join('')}</div></div>`;
  }).join(''):'<p class="muted">No accounts yet. Add one above.</p>';
 }
 
@@ -857,10 +902,12 @@ function renderJournal(){
 }
 
 function renderStats(T,days){
- const passed=passedN(),failed=failedN();
+ const passed=passedN(),failed=evalFailN();
  $('sAccts').textContent=accts.length;
  $('sActive').textContent=accts.filter(a=>a.stage!=='failed').length;
  $('sPass').textContent=pct(passed,passed+failed);
+ $('sBlownF').textContent=fundedFailN();
+ $('sPayRate').textContent=passed?pct(accts.filter(a=>a.passed&&hasPay(a)).length,passed):'-';
  $('sCpp').textContent=passed?fmt(T.spent/passed):'-';
  $('sAvgPay').textContent=fmt(payouts.length?T.out/payouts.length:0);
  $('sBestPay').textContent=fmt(payouts.length?Math.max(...payouts.map(p=>p.amt)):0);
@@ -870,20 +917,20 @@ function renderStats(T,days){
  const firms=Object.keys(FIRMS);
  [byF,mf,pf,jf].forEach(g=>Object.keys(g).forEach(f=>{if(!firms.includes(f))firms.push(f)}));
  const rows=firms.map(f=>{
-  const l=byF[f]||[],c=s=>l.filter(a=>a.stage===s).length;
-  return {f,n:l.length,ev:c('eval'),fu:c('funded'),li:c('live'),fl:c('failed'),p:c('funded')+c('live'),sp:sum((mf[f]||[]).map(m=>m.amt)),o:sum((pf[f]||[]).map(x=>x.amt)),jd:(jf[f]||[]).length,jl:sum((jf[f]||[]).map(j=>j.pnl))};
+  const l=byF[f]||[],c=k=>l.filter(a=>outKey(a)===k).length;
+  return {f,n:l.length,ev:c('eval'),fu:c('funded'),li:c('live'),ef:c('evalfail'),ff:c('fundedfail'),p:l.filter(a=>a.passed).length,sp:sum((mf[f]||[]).map(m=>m.amt)),o:sum((pf[f]||[]).map(x=>x.amt)),jd:(jf[f]||[]).length,jl:sum((jf[f]||[]).map(j=>j.pnl))};
  });
- const tot=rows.reduce((t,r)=>({f:'All firms',n:t.n+r.n,ev:t.ev+r.ev,fu:t.fu+r.fu,li:t.li+r.li,fl:t.fl+r.fl,p:t.p+r.p,sp:t.sp+r.sp,o:t.o+r.o,jd:t.jd+r.jd,jl:t.jl+r.jl}),{f:'All firms',n:0,ev:0,fu:0,li:0,fl:0,p:0,sp:0,o:0,jd:0,jl:0});
+ const tot=rows.reduce((t,r)=>({f:'All firms',n:t.n+r.n,ev:t.ev+r.ev,fu:t.fu+r.fu,li:t.li+r.li,ef:t.ef+r.ef,ff:t.ff+r.ff,p:t.p+r.p,sp:t.sp+r.sp,o:t.o+r.o,jd:t.jd+r.jd,jl:t.jl+r.jl}),{f:'All firms',n:0,ev:0,fu:0,li:0,ef:0,ff:0,p:0,sp:0,o:0,jd:0,jl:0});
  const line=(r,bold)=>{
-  const rate=(r.p+r.fl)?Math.round(r.p/(r.p+r.fl)*100):0;
-  return `<tr><td>${bold?'<b>'+r.f+'</b>':r.f}</td><td>${r.n}</td><td>${r.ev}</td><td>${r.fu}</td><td>${r.li}</td><td>${r.fl}</td><td>${(r.p+r.fl)?rate+'%':'-'}<div class="bar"><i style="width:${rate}%"></i></div></td><td class="neg">${fmt(r.sp)}</td><td class="pos">${fmt(r.o)}</td><td class="${cls(r.o-r.sp)}">${fmt(r.o-r.sp)}</td><td>${r.jd}</td><td class="${cls(r.jl)}">${fmt(r.jl)}</td></tr>`;
+  const rate=(r.p+r.ef)?Math.round(r.p/(r.p+r.ef)*100):0;
+  return `<tr><td>${bold?'<b>'+r.f+'</b>':r.f}</td><td>${r.n}</td><td>${r.ev}</td><td>${r.p}</td><td>${r.fu}</td><td>${r.li}</td><td>${r.ef}</td><td>${r.ff}</td><td>${(r.p+r.ef)?rate+'%':'-'}<div class="bar"><i style="width:${rate}%"></i></div></td><td class="neg">${fmt(r.sp)}</td><td class="pos">${fmt(r.o)}</td><td class="${cls(r.o-r.sp)}">${fmt(r.o-r.sp)}</td><td>${r.jd}</td><td class="${cls(r.jl)}">${fmt(r.jl)}</td></tr>`;
  };
- $('tFirmScore').innerHTML='<tr><th>Firm</th><th>Accts</th><th>Eval</th><th>Funded</th><th>Live</th><th>Failed</th><th>Pass rate</th><th>Spent</th><th>Payouts</th><th>Net</th><th>Journal days</th><th>Logged P&L</th></tr>'+rows.map(r=>line(r,false)).join('')+line(tot,true);
+ $('tFirmScore').innerHTML='<tr><th>Firm</th><th>Accts</th><th>In eval</th><th>Passed ever</th><th>Funded now</th><th>Live now</th><th>Blown in eval</th><th>Blown after pass</th><th>Pass rate</th><th>Spent</th><th>Payouts</th><th>Net</th><th>Journal days</th><th>Logged P&L</th></tr>'+rows.map(r=>line(r,false)).join('')+line(tot,true);
  $('tSizeScore').innerHTML=groupMath(x=>x.size||'No size');
  $('tTypeScore').innerHTML=groupMath(x=>x.firm+' '+x.type);
 
  const rk=accts.map(a=>({a,t:acctTot(a)})).sort((x,y)=>y.t.n-x.t.n);
- $('tTopAccts').innerHTML=rk.length?'<tr><th>#</th><th>Name</th><th>Firm</th><th>Size</th><th>Stage</th><th>Spent</th><th>Payouts</th><th>Net</th></tr>'+rk.map((r,i)=>`<tr><td>${i+1}</td><td><b>${esc(r.a.name)}</b></td><td>${r.a.firm}</td><td>${r.a.size}</td><td><span class="pill ${r.a.stage}">${STAGES[r.a.stage]}</span></td><td class="neg">${fmt(r.t.s)}</td><td class="pos">${fmt(r.t.o)}</td><td class="${cls(r.t.n)}">${fmt(r.t.n)}</td></tr>`).join(''):'<tr><td class="muted">Add accounts to see the ranking.</td></tr>';
+ $('tTopAccts').innerHTML=rk.length?'<tr><th>#</th><th>Name</th><th>Firm</th><th>Size</th><th>Outcome</th><th>Spent</th><th>Payouts</th><th>Net</th></tr>'+rk.map((r,i)=>`<tr><td>${i+1}</td><td><b>${esc(r.a.name)}</b></td><td>${r.a.firm}</td><td>${r.a.size}</td><td><span class="pill ${outKey(r.a)}">${OUTCOMES[outKey(r.a)]}</span></td><td class="neg">${fmt(r.t.s)}</td><td class="pos">${fmt(r.t.o)}</td><td class="${cls(r.t.n)}">${fmt(r.t.n)}</td></tr>`).join(''):'<tr><td class="muted">Add accounts to see the ranking.</td></tr>';
 
  /* trading day stats come from the Journal and show a dash when it is empty */
  const dv=Object.values(days),w=dv.filter(v=>v>0),l=dv.filter(v=>v<0);
@@ -902,14 +949,14 @@ function renderStats(T,days){
 }
 
 function renderAnalytics(T){
- const passed=passedN(),failed=failedN(),pays=payouts.map(p=>p.amt);
+ const passed=passedN(),failed=evalFailN(),pays=payouts.map(p=>p.amt);
  const allDates=[...money.map(m=>m.date),...payouts.map(p=>p.date),...personal.map(x=>x.date)].filter(Boolean).sort();
  let months=1;
  if(allDates.length){const a=new Date(allDates[0]),b=new Date(todayS);months=Math.max(1,(b.getFullYear()-a.getFullYear())*12+b.getMonth()-a.getMonth()+1)}
  $('cSpent').textContent=fmt(T.spent);$('cOut').textContent=fmt(T.out);
  setM('cTrade',T.trade);$('cWith').textContent=fmt(T.wd);setM('cNet',T.net);
  $('cRoi').textContent=T.spent?Math.round(T.trade/T.spent*100)+'%':'-';
- $('cBought').textContent=accts.length;$('cPassed').textContent=passed;$('cFailed').textContent=failed;
+ $('cBought').textContent=accts.length;$('cPassed').textContent=passed;$('cFailed').textContent=failed;$('cFundedFail').textContent=fundedFailN();
  $('cPass').textContent=pct(passed,passed+failed);
  $('cCpp').textContent=passed?fmt(T.spent/passed):'-';
  $('cAvgPay').textContent=fmt(pays.length?T.out/pays.length:0);
@@ -921,9 +968,9 @@ function renderAnalytics(T){
  setM('cRun',T.net/months);
  $('cPer').textContent=T.spent?(T.out/T.spent).toFixed(2):'-';
 
- $('tAcctMath').innerHTML=accts.length?'<tr><th>Name</th><th>Firm</th><th>Type</th><th>Size</th><th>Stage</th><th>Spent</th><th>Payouts</th><th>Net</th><th>Return</th><th>Logged P&L</th></tr>'+accts.map(a=>{
+ $('tAcctMath').innerHTML=accts.length?'<tr><th>Name</th><th>Firm</th><th>Type</th><th>Size</th><th>Outcome</th><th>Spent</th><th>Payouts</th><th>Net</th><th>Return</th><th>Logged P&L</th></tr>'+accts.map(a=>{
   const t=acctTot(a);
-  return `<tr><td><b>${esc(a.name)}</b></td><td>${a.firm}</td><td>${a.type}</td><td>${a.size}</td><td>${STAGES[a.stage]}</td><td class="neg">${fmt(t.s)}</td><td class="pos">${fmt(t.o)}</td><td class="${cls(t.n)}">${fmt(t.n)}</td><td class="${cls(t.n)}">${t.s?Math.round(t.n/t.s*100)+'%':'-'}</td><td class="${cls(t.t)}">${fmt(t.t)}</td></tr>`;
+  return `<tr><td><b>${esc(a.name)}</b></td><td>${a.firm}</td><td>${a.type}</td><td>${a.size}</td><td>${OUTCOMES[outKey(a)]}</td><td class="neg">${fmt(t.s)}</td><td class="pos">${fmt(t.o)}</td><td class="${cls(t.n)}">${fmt(t.n)}</td><td class="${cls(t.n)}">${t.s?Math.round(t.n/t.s*100)+'%':'-'}</td><td class="${cls(t.t)}">${fmt(t.t)}</td></tr>`;
  }).join(''):'<tr><td class="muted">No accounts yet.</td></tr>';
 
  $('tFirmMath').innerHTML=groupMath(x=>x.firm);
@@ -959,7 +1006,7 @@ function renderAnalytics(T){
  $('fEv').className='value '+(ev!==null?cls(ev):'');
  const fk={};
  const f0=()=>({n:0,pass:0,fail:0,fee:0,o:0});
- accts.forEach(a=>{const k=a.firm+' '+a.type;fk[k]=fk[k]||f0();fk[k].n++;if(a.stage==='funded'||a.stage==='live')fk[k].pass++;if(a.stage==='failed')fk[k].fail++});
+ accts.forEach(a=>{const k=a.firm+' '+a.type;fk[k]=fk[k]||f0();fk[k].n++;if(a.passed)fk[k].pass++;if(a.stage==='failed'&&!a.passed)fk[k].fail++});
  buys.forEach(m=>{const k=m.firm+' '+m.type;fk[k]=fk[k]||f0();fk[k].fee+=m.amt});
  payouts.forEach(p=>{const k=p.firm+' '+p.type;fk[k]=fk[k]||f0();fk[k].o+=p.amt});
  $('tFundMath').innerHTML=Object.keys(fk).length?'<tr><th>Firm and type</th><th>Accts</th><th>Pass rate</th><th>Avg fee</th><th>Expected cost per funded</th><th>Payout per funded</th><th>Break-even pass rate</th></tr>'+Object.entries(fk).map(([k,v])=>{const af=v.n?v.fee/v.n:0;const pr=(v.pass+v.fail)?v.pass/(v.pass+v.fail):null;const ppf=v.pass?v.o/v.pass:null;return `<tr><td><b>${esc(k)}</b></td><td>${v.n}</td><td>${pr!==null?Math.round(pr*100)+'%':'-'}</td><td class="neg">${fmt(af)}</td><td class="neg">${pr?fmt(af/pr):'-'}</td><td class="pos">${ppf!==null?fmt(ppf):'-'}</td><td>${ppf?Math.round(af/ppf*100)+'%':'-'}</td></tr>`}).join(''):'<tr><td class="muted">Add accounts and costs to see this.</td></tr>';
@@ -970,8 +1017,8 @@ function renderAnalytics(T){
 
 function renderTicker(T){
  const todayPnl=sum(journal.filter(j=>j.date===todayS).map(j=>j.pnl));
- const c=s=>accts.filter(a=>a.stage===s).length;
- const items=[['TRUE NET',fmt(T.net),cls(T.net)],['PAYOUTS',fmt(T.out),'pos'],['SPENT',fmt(T.spent),'neg'],['WITHDRAWN',fmt(T.wd),'gold'],['TODAY',fmt(todayPnl),cls(todayPnl)],['EVAL',c('eval'),'gold'],['FUNDED',c('funded'),'pos'],['LIVE',c('live'),''],['FAILED',c('failed'),'neg'],['PASS RATE',pct(passedN(),passedN()+failedN()),'']];
+ const c=outCount;
+ const items=[['TRUE NET',fmt(T.net),cls(T.net)],['PAYOUTS',fmt(T.out),'pos'],['SPENT',fmt(T.spent),'neg'],['WITHDRAWN',fmt(T.wd),'gold'],['TODAY',fmt(todayPnl),cls(todayPnl)],['EVAL',c('eval'),'gold'],['FUNDED',c('funded'),'pos'],['LIVE',c('live'),''],['BLOWN IN EVAL',c('evalfail'),'neg'],['BLOWN AFTER PASS',c('fundedfail'),'neg'],['PASS RATE',pct(passedN(),passedN()+evalFailN()),'']];
  const html=items.map(i=>`<span class="ti"><b>${i[0]}</b><i class="${i[2]}">${i[1]}</i></span>`).join('');
  $('tk').innerHTML=html+html;
 }
@@ -1046,13 +1093,13 @@ function renderCharts(T){
  barChart($('chFirm'),Object.keys(nf).map(f=>({label:f,vals:[{v:nf[f]}]})));
 
  const pr=groupBy(accts,a=>a.firm);
- barChart($('chPass'),Object.keys(pr).map(f=>{const p=pr[f].filter(a=>a.stage==='funded'||a.stage==='live').length,fl=pr[f].filter(a=>a.stage==='failed').length;return {label:f,vals:[{v:(p+fl)?p/(p+fl)*100:0,c:GOLD}]}}),{pct:true});
+ barChart($('chPass'),Object.keys(pr).map(f=>{const p=pr[f].filter(a=>a.passed).length,fl=pr[f].filter(a=>a.stage==='failed'&&!a.passed).length;return {label:f,vals:[{v:(p+fl)?p/(p+fl)*100:0,c:GOLD}]}}),{pct:true});
 
  const cc=groupBy(money,m=>m.kind),pal=[RED,GOLD,BLUE,VIOLET,'#ff9f68'];
  donut($('chCost'),Object.keys(cc).map((k,i)=>({label:KINDS[k]||k,v:sum(cc[k].map(m=>m.amt)),c:pal[i%pal.length],fmt:fmt(sum(cc[k].map(m=>m.amt))),total:short(T.spent)})));
 
- const st=[['eval','Evaluation',GOLD],['funded','Funded',GREEN],['live','Live',BLUE],['failed','Failed',RED]];
- donut($('chStage'),st.map(([k,l,c])=>({label:l,v:accts.filter(a=>a.stage===k).length,c,total:accts.length})));
+ const st=[['eval','In evaluation',GOLD],['funded','Funded now',GREEN],['live','Live now',BLUE],['evalfail','Blown in eval',RED],['fundedfail','Blown after passing','#ff9f68']];
+ donut($('chStage'),st.map(([k,l,c])=>({label:l,v:outCount(k),c,total:accts.length})));
 
  const wc=groupBy(personal,x=>x.cat),wp=[VIOLET,GOLD,BLUE,'#ff9f68',GREEN,RED];
  donut($('chWith'),Object.keys(wc).map((k,i)=>({label:CATS[k]||k,v:sum(wc[k].map(x=>x.amt)),c:wp[i%wp.length],fmt:fmt(sum(wc[k].map(x=>x.amt))),total:short(T.wd)})));
@@ -1065,17 +1112,3 @@ render();
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
